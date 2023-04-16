@@ -1,5 +1,15 @@
-# PeasieAPITemplate
-Complete and working ASP.NET Core Minimal APIs template, with lots of ready to go examples, including OAuth 2.0 Authentication using JSON Web Algorithms and Tokens (JWA, JWT, JWS, JWE) as Bearer.  
+# TODO
+
+- obfuscator: not feasible with core + free ... 
+- AOT: https://flerka.github.io/personal-blog/2022-06-21-ahead-of-time-compilation/#lets-try-native-aot-in-console
+- DEBUG
+- encrypt config file
+- automated startup on windows!!
+- compare swagger DTO's
+- configure whitelisting
+2. - install on server
+1. - push to github
+3. - write instructions for HvA and Jeroen
 
 ## Examples of services and middlewares in this template:  
 - Architecture based on Minimal APIs pattern with Endpoint Handlers  
@@ -15,7 +25,7 @@ Complete and working ASP.NET Core Minimal APIs template, with lots of ready to g
 - HealthChecks health monitoring  
 - HSTS and HTTPS redirection  
 - Multiple environments usage  
-- NLog and JSON console  
+- SeriLog and JSON console  
 - OpenAPI Swagger with Swashbuckle  
 - StopWatch  
 

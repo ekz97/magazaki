@@ -22,6 +22,7 @@ using PeasieLib.Middleware;
 using PeasieLib.Extensions;
 using Hangfire.Common;
 using PeasieAPI.Interfaces;
+using PeasieAPI.Models.DB;
 
 // TODO
 // Header protection

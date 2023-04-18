@@ -1,5 +1,23 @@
 # TODO
 
+Overzicht poorten:
+
+. BeneficiaryAPI: https://10.10.10.10:7089 (Web API)
+. FinancialInstituteAPI: https://10.10.10.10:7126 (Web API)
+. Peasie.Identity.App: https://10.10.10.10:7198 (Razor application)
+. PeasieAPI: https://10.10.10.10:7192 (Web API)
+
+https://hogent-demo.fortiddns.com:44443/
+
+User/pwd: luc/Fortinet*123
+
+
+// TODO
+// Header protection
+// https://flerka.github.io/personal-blog/2022-06-21-ahead-of-time-compilation/#lets-try-native-aot-in-console AOT!!
+
+Hiermee heb je ook toegang tot een tunnel-toegang via de VPN Client zoals bij Hogent. Nadien kan je vervolgens de Win 2022 server via RDP bereiken op het ip-adres 10.10.10.10 en de standaardpoort 3389.
+
 - obfuscator: not feasible with core + free ... 
 - AOT: https://flerka.github.io/personal-blog/2022-06-21-ahead-of-time-compilation/#lets-try-native-aot-in-console
 - DEBUG
@@ -11,7 +29,7 @@
 1. - push to github
 3. - write instructions for HvA and Jeroen
 
-## Examples of services and middlewares in this template:  
+## Services and middlewares in this template:  
 - Architecture based on Minimal APIs pattern with Endpoint Handlers  
 - Asynchronous Service calls with Dependency Injection (DI) and Scoped Services  
 - Authentication with JWT, JWS, JWE and JOSE  
@@ -53,7 +71,7 @@ openssl pkcs12 -export -out certificate.pfx -inkey privateKey.key -in certificat
 ```
 
 ## How to generate NLog table  
-You can use the following T-SQL command to generate a table working with this NLog sample:  
+You can use the following T-SQL command to generate a table working with NLog (attention, we use SeriLog currently):  
 
 ```
 CREATE TABLE [dbo].[NLog] (

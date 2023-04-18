@@ -37,4 +37,11 @@ dat de betaling verwerkt is; eerst wordt een PaymentID gevraagd en hiervoor word
 tussen de BeneficiaryAPI en FinancialInstituteAPI te bekijken en te wijzigen. Op dit moment wordt zelfs het bericht van de bank naar de shop via de private session key voor de bank gedecrypteerd in PeasieAPI en met de public
 session key van de shop geencrypteerd in PeasieAPI bij het versturen naar BeneficiaryAPI (deze stap zouden we bijvoorbeeld kunnen overslaan)
 
+Vanaf nu werken via de vpn tunnel.
+
+- Connectie maken doe je concreet via de FortiClient. Kies hierbij om te verbinden naar de tunnel VPN via https://hogent- demo.fortiddns.com:44443
+- Inloggen doe je met de gebruiker luc (of jeroen) en het wachtwoord Fortinet*123. Via deze tunnel kan je aan het gebruikte subnet 10.10.10.0/24.
+
+Hierdoor kan je via RDP naar de testserver connectie maken op 10.10.10.10 Hierop heb je ook een login namelijk luc@hogent-demo.local en opnieuw hetzelfde wachtwoord Fortinet*123.
+Let op, jullie (Luc & Jeroen) delen deze login op de server zodat jullie elkaar profiel kunnen zien en kunnen verder werken aan de apps.
 

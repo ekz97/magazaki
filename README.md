@@ -1,5 +1,5 @@
-# PeasieAPITemplate
-Complete and working ASP.NET Core Minimal APIs template, with lots of ready to go examples, including OAuth 2.0 Authentication using JSON Web Algorithms and Tokens (JWA, JWT, JWS, JWE) as Bearer.  
+# Peasie
+ASP.NET Core Minimal API, with lots of ready to go examples, including OAuth 2.0 Authentication using JSON Web Algorithms and Tokens (JWA, JWT, JWS, JWE) as Bearer.  
 
 ## Examples of services and middlewares in this template:  
 - Architecture based on Minimal APIs pattern with Endpoint Handlers  
@@ -42,7 +42,7 @@ openssl req -new -x509 -sha256 -outform pem -key sign-key.pem -days 365 -out sig
 openssl pkcs12 -export -out certificate.pfx -inkey privateKey.key -in certificate.pem  
 ```
 
-## How to generate NLog table  
+## How to generate NLog table (note - currently SeriLog is in use, not NLog)
 You can use the following T-SQL command to generate a table working with this NLog sample:  
 
 ```

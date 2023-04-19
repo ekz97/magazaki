@@ -12,9 +12,9 @@ using System.Threading.RateLimiting;
 // To create the database contexts:
 // --------------------------------
 // Add-Migration InitialCreate -Context ApplicationDbContext -OutputDir Data/Migrations/ApplicationDb
-// Update-Database -Context ApplicationDbContext
+// Update-Database -Context ApplicationDbContext -p Peasie.Identity.App
 // Add-Migration AddDataProtectionKeys -Context DataProtectionKeyContext
-// Update-Database -Context DataProtectionKeyContext
+// Update-Database -Context DataProtectionKeyContext -p Peasie.Identity.App
 
 internal class Program
 {

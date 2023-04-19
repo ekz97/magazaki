@@ -45,3 +45,5 @@ Vanaf nu werken via de vpn tunnel.
 Hierdoor kan je via RDP naar de testserver connectie maken op 10.10.10.10 Hierop heb je ook een login namelijk luc@hogent-demo.local en opnieuw hetzelfde wachtwoord Fortinet*123.
 Let op, jullie (Luc & Jeroen) delen deze login op de server zodat jullie elkaar profiel kunnen zien en kunnen verder werken aan de apps.
 
+Opgelet: mysql moet de juiste server geconfigureerd hebben om toegang root toe te laten, zie workbench: testserverannick.hogent-demo.local
+

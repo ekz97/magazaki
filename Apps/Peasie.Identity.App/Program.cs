@@ -20,6 +20,9 @@ using System.Threading.RateLimiting;
 // dotnet ef migrations add AddDataProtectionKeys -c DataProtectionKeyContext
 // dotnet ef database update -c ApplicationDbContext -o Data/Migrations/ApplicationDb
 // dotnet ef database update -c DataProtectionKeyContext
+// ;TrustServerCertificate=True
+// dotnet dev-certs https --trust
+// dotnet dev-certs https --check
 
 internal class Program
 {

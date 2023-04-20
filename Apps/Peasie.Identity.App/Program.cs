@@ -15,6 +15,11 @@ using System.Threading.RateLimiting;
 // Update-Database -Context ApplicationDbContext -p Peasie.Identity.App
 // Add-Migration AddDataProtectionKeys -Context DataProtectionKeyContext
 // Update-Database -Context DataProtectionKeyContext -p Peasie.Identity.App
+// dotnet tool install --global dotnet-ef
+// dotnet ef migrations add InitialCreate -c ApplicationDbContext -o Data/Migrations/ApplicationDb
+// dotnet ef migrations add AddDataProtectionKeys -c DataProtectionKeyContext
+// dotnet ef database update -c ApplicationDbContext -o Data/Migrations/ApplicationDb
+// dotnet ef database update -c DataProtectionKeyContext
 
 internal class Program
 {

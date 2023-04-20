@@ -9,16 +9,12 @@
   <ItemGroup>
     <Compile Remove="Controllers\**" />
     <Compile Remove="logs\**" />
-    <Compile Remove="Models\**" />
     <Content Remove="Controllers\**" />
     <Content Remove="logs\**" />
-    <Content Remove="Models\**" />
     <EmbeddedResource Remove="Controllers\**" />
     <EmbeddedResource Remove="logs\**" />
-    <EmbeddedResource Remove="Models\**" />
     <None Remove="Controllers\**" />
     <None Remove="logs\**" />
-    <None Remove="Models\**" />
   </ItemGroup>
 
 	<ItemGroup>

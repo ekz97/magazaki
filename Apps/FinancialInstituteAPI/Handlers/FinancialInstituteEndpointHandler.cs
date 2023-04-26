@@ -3,8 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using Peasie.Contracts;
 using PeasieLib.Services;
 using System.Text.Json;
-using FinancialInstituteAPI.Interfaces;
 using PeasieLib.Models.DTO;
+using PeasieLib.Interfaces;
 
 namespace FinancialInstituteAPI.Handlers
 {
@@ -15,7 +15,7 @@ namespace FinancialInstituteAPI.Handlers
         public void RegisterAPIs(WebApplication app,
             SymmetricSecurityKey key, X509SecurityKey signingCertificateKey, X509SecurityKey encryptingCertificateKey)
         {
-            var applicationContextService = app.Services.GetService(typeof(IApplicationContextService)) as IApplicationContextService;
+            var applicationContextService = app.Services.GetService(typeof(IPeasieApplicationContextService)) as IPeasieApplicationContextService;
 
             // GROUPS OF ENDPOINTS ==================================================
             var authenticationHandler = app.MapGroup("/token").WithTags("Authentication API");
@@ -28,7 +28,7 @@ namespace FinancialInstituteAPI.Handlers
             _ = authenticationHandler.MapPost("/rfa", () =>
             {
                 applicationContextService?.Logger.LogDebug("-> FinancialInstituteEndpointHandler::Rfa");
-                GetAuthenticationToken(applicationContextService);
+                applicationContextService?.GetAuthenticationToken();
                 applicationContextService?.Logger.LogDebug("<- FinancialInstituteEndpointHandler::Rfa");
             });
 
@@ -37,7 +37,8 @@ namespace FinancialInstituteAPI.Handlers
             _ = sessionHandler.MapPost("/request", (UserDTO userDTO) =>
             {
                 applicationContextService?.Logger.LogDebug("-> FinancialInstituteEndpointHandler::SessionRequest");
-                if (!GetSession(applicationContextService, userDTO))
+                var ok = applicationContextService?.GetSession(userDTO) ?? false;
+                if (!ok)
                     return Results.BadRequest();
                 applicationContextService?.Logger.LogDebug("<- FinancialInstituteEndpointHandler::SessionRequest");
                 return Results.Ok();
@@ -140,13 +141,14 @@ namespace FinancialInstituteAPI.Handlers
             }).RequireAuthorization("IsAuthorized");
         }
 
-        public static void GetAuthenticationToken(IApplicationContextService? applicationContextService)
+        /*
+        public static void GetAuthenticationToken(IPeasieApplicationContextService? applicationContextService)
         {
             var url = applicationContextService?.PeasieUrl + "/token/generateEncryptedToken";
             applicationContextService.AuthenticationToken = url.GetStringAsync().Result;
         }
 
-        public static bool GetSession(IApplicationContextService? applicationContextService, UserDTO userDTO)
+        public static bool GetSession(IPeasieApplicationContextService? applicationContextService, UserDTO userDTO)
         {
             // request session key
             var rsa = TokenService.GeneratePPKRandomly(out string privateKey, out string publicKey);
@@ -182,5 +184,6 @@ namespace FinancialInstituteAPI.Handlers
 
             return true;
         }
+        */
     }
 }

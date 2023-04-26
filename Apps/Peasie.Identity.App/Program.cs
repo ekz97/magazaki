@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Peasie.Web;
 using Peasie.Web.Data;
 using Peasie.Web.Services;
+using PeasieLib.Middleware;
 using SendGrid.Extensions.DependencyInjection;
+using Peasie.Identity.App.Areas.Identity.Data;
 using Serilog;
 using System.Threading.RateLimiting;
 
@@ -20,7 +22,6 @@ using System.Threading.RateLimiting;
 // dotnet ef migrations add AddDataProtectionKeys -c DataProtectionKeyContext
 // dotnet ef database update -c ApplicationDbContext -o Data/Migrations/ApplicationDb
 // dotnet ef database update -c DataProtectionKeyContext
-// ;TrustServerCertificate=True
 // dotnet dev-certs https --trust
 // dotnet dev-certs https --check
 
@@ -48,6 +49,11 @@ internal class Program
            .Enrich.WithProperty("Version", "1.0.0")
            .ReadFrom.Configuration(ctx.Configuration));
 
+        // Add services to the container.
+
+        builder.Services.AddHealthChecks();
+
+        #region rate limiting
         builder.Services.AddRateLimiter(options =>
         {
             options.OnRejected = async (context, token) =>
@@ -94,10 +100,12 @@ RateLimitPartition.GetFixedWindowLimiter(httpContext.ResolveClientIpAddress(), p
     }))
     );
         });
+        #endregion
 
+        #region IP white listing
         builder.Services.Configure<IPWhitelistOptions>(builder.Configuration.GetSection("IPWhitelistOptions"));
+        #endregion
 
-        // Add services to the container.
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         var serverVersion = new MySqlServerVersion(new Version(8, 0, 31));
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -110,7 +118,7 @@ RateLimitPartition.GetFixedWindowLimiter(httpContext.ResolveClientIpAddress(), p
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-        builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        builder.Services.AddDefaultIdentity<PeasieIdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationDbContext>();
         builder.Services.AddRazorPages();
 
@@ -137,6 +145,10 @@ RateLimitPartition.GetFixedWindowLimiter(httpContext.ResolveClientIpAddress(), p
         builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 
         var app = builder.Build();
+
+        app.MapHealthChecks("/Health");
+        app.UseRateLimiter();
+        app.UseIPWhitelist();
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

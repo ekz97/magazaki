@@ -9,16 +9,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Peasie.Identity.App.Areas.Identity.Data;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Peasie.Web.Areas.Identity.Pages.Account
 {
     public class ConfirmEmailChangeModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<PeasieIdentityUser> _userManager;
+        private readonly SignInManager<PeasieIdentityUser> _signInManager;
 
-        public ConfirmEmailChangeModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public ConfirmEmailChangeModel(UserManager<PeasieIdentityUser> userManager, SignInManager<PeasieIdentityUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;

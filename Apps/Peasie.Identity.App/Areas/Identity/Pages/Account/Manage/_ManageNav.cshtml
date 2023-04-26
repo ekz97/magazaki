@@ -1,4 +1,5 @@
-@inject SignInManager<IdentityUser> SignInManager
+@using Peasie.Identity.App.Areas.Identity.Data
+@inject SignInManager<PeasieIdentityUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }

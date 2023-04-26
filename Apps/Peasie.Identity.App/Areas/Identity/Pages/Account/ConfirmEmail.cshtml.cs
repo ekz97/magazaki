@@ -9,17 +9,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Peasie.Identity.App.Areas.Identity.Data;
 using Peasie.Web.Services;
 
 namespace Peasie.Web.Areas.Identity.Pages.Account
 {
     public class ConfirmEmailModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<PeasieIdentityUser> _userManager;
         private readonly IDataProtectionProvider _dataProtectionProvider;
         private readonly IEncryptionService _encryptionService;
 
-        public ConfirmEmailModel(UserManager<IdentityUser> userManager, IDataProtectionProvider dataProtectionProvider, IEncryptionService encryptionService)
+        public ConfirmEmailModel(UserManager<PeasieIdentityUser> userManager, IDataProtectionProvider dataProtectionProvider, IEncryptionService encryptionService)
         {
             _userManager = userManager;
 

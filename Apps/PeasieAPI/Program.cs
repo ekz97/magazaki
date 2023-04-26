@@ -21,8 +21,8 @@ using System.Threading.RateLimiting;
 using PeasieLib.Middleware;
 using PeasieLib.Extensions;
 using Hangfire.Common;
-using PeasieAPI.Interfaces;
-using PeasieAPI.Models.DB;
+using PeasieLib;
+using PeasieLib.Interfaces;
 
 // TODO
 // Header protection
@@ -33,11 +33,11 @@ namespace PeasieAPI
 {
     public class Program
     {
-        private static ApplicationContextService? _applicationContextService;
+        private static PeasieApplicationContextService? _applicationContextService;
 
         public static void Main(string[] args)
         {
-            _applicationContextService = new ApplicationContextService();
+            _applicationContextService = new();
 
             // Create the app builder:
             var builder = WebApplication.CreateBuilder(args);
@@ -197,7 +197,7 @@ namespace PeasieAPI
             builder.Services.AddRequestDecompression();
 
             // Add custom services to the container.
-            builder.Services.AddSingleton<IApplicationContextService>(_applicationContextService);
+            builder.Services.AddSingleton<IPeasieApplicationContextService>(_applicationContextService);
             builder.Services.AddScoped<IAuthorizationHandler, PeasieAuthorizationHandler>();
             builder.Services.AddScoped<PeasieEndpointHandler>();
 

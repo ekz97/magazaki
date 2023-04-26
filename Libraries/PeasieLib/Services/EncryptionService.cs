@@ -5,6 +5,12 @@ namespace PeasieLib.Services
 {
     public class EncryptionService
     {
+        public static string ToSHA256(string s)
+        {
+            byte[] hashValue = SHA256.HashData(Encoding.UTF8.GetBytes(s));
+            return Convert.ToHexString(hashValue);
+        }
+
         #region Symmetric
         private static string _EncryptSym(string data, out byte[] key)
         {

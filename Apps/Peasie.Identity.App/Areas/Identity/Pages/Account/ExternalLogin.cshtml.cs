@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Peasie.Identity.App.Areas.Identity.Data;
 using Microsoft.Extensions.Logging;
 
 namespace Peasie.Web.Areas.Identity.Pages.Account
@@ -23,17 +24,17 @@ namespace Peasie.Web.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class ExternalLoginModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly IUserEmailStore<IdentityUser> _emailStore;
+        private readonly SignInManager<PeasieIdentityUser> _signInManager;
+        private readonly UserManager<PeasieIdentityUser> _userManager;
+        private readonly IUserStore<PeasieIdentityUser> _userStore;
+        private readonly IUserEmailStore<PeasieIdentityUser> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
+            SignInManager<PeasieIdentityUser> signInManager,
+            UserManager<PeasieIdentityUser> userManager,
+            IUserStore<PeasieIdentityUser> userStore,
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender)
         {
@@ -197,27 +198,27 @@ namespace Peasie.Web.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private IdentityUser CreateUser()
+        private PeasieIdentityUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<IdentityUser>();
+                return Activator.CreateInstance<PeasieIdentityUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
-                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(PeasieIdentityUser)}'. " +
+                    $"Ensure that '{nameof(PeasieIdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the external login page in /Areas/Identity/Pages/Account/ExternalLogin.cshtml");
             }
         }
 
-        private IUserEmailStore<IdentityUser> GetEmailStore()
+        private IUserEmailStore<PeasieIdentityUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<IdentityUser>)_userStore;
+            return (IUserEmailStore<PeasieIdentityUser>)_userStore;
         }
     }
 }

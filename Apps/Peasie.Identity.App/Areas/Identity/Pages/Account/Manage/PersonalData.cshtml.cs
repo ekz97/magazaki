@@ -5,17 +5,18 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Peasie.Identity.App.Areas.Identity.Data;
 using Microsoft.Extensions.Logging;
 
 namespace Peasie.Web.Areas.Identity.Pages.Account.Manage
 {
     public class PersonalDataModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<PeasieIdentityUser> _userManager;
         private readonly ILogger<PersonalDataModel> _logger;
 
         public PersonalDataModel(
-            UserManager<IdentityUser> userManager,
+            UserManager<PeasieIdentityUser> userManager,
             ILogger<PersonalDataModel> logger)
         {
             _userManager = userManager;

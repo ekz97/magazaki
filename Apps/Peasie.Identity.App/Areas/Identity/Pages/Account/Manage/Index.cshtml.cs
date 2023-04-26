@@ -9,17 +9,18 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Peasie.Identity.App.Areas.Identity.Data;
 
 namespace Peasie.Web.Areas.Identity.Pages.Account.Manage
 {
     public class IndexModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<PeasieIdentityUser> _userManager;
+        private readonly SignInManager<PeasieIdentityUser> _signInManager;
 
         public IndexModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            UserManager<PeasieIdentityUser> userManager,
+            SignInManager<PeasieIdentityUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -55,12 +56,23 @@ namespace Peasie.Web.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            /// 
+            [Required]
+            [DataType(DataType.Text)]
+            [Display(Name = "Secret")]
+            public string Secret { get; set; }
+
+            [Required]
+            [Display(Name = "Valid Until")]
+            [DataType(DataType.Date)]
+            public DateTime ValidUntil { get; set; }
+
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
         }
 
-        private async Task LoadAsync(IdentityUser user)
+        private async Task LoadAsync(PeasieIdentityUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
@@ -69,6 +81,8 @@ namespace Peasie.Web.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
+                Secret = user.Secret,
+                ValidUntil = user.ValidUntil,
                 PhoneNumber = phoneNumber
             };
         }
@@ -109,6 +123,18 @@ namespace Peasie.Web.Areas.Identity.Pages.Account.Manage
                     return RedirectToPage();
                 }
             }
+
+            if (Input.Secret != user.Secret)
+            {
+                user.Secret = PeasieLib.Services.EncryptionService.ToSHA256(Input.Secret);
+            }
+
+            if (Input.ValidUntil != user.ValidUntil)
+            {
+                user.ValidUntil = Input.ValidUntil;
+            }
+
+            await _userManager.UpdateAsync(user);
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";

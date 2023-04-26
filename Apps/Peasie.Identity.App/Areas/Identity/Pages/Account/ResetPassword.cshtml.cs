@@ -10,15 +10,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Peasie.Identity.App.Areas.Identity.Data;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Peasie.Web.Areas.Identity.Pages.Account
 {
     public class ResetPasswordModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<PeasieIdentityUser> _userManager;
 
-        public ResetPasswordModel(UserManager<IdentityUser> userManager)
+        public ResetPasswordModel(UserManager<PeasieIdentityUser> userManager)
         {
             _userManager = userManager;
         }

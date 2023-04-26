@@ -35,4 +35,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Libraries\PeasieLib\PeasieLib.csproj" />
+  </ItemGroup>
+
 </Project>

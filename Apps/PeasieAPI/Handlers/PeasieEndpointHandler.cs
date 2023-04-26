@@ -1,6 +1,6 @@
 ﻿using Flurl.Http;
 using Peasie.Contracts;
-using PeasieAPI.Interfaces;
+using PeasieLib.Interfaces;
 using PeasieLib.Services;
 
 namespace PeasieLib.Handlers;
@@ -13,7 +13,7 @@ public class PeasieEndpointHandler
     public void RegisterAPIs(WebApplication app,
         SymmetricSecurityKey key, X509SecurityKey signingCertificateKey, X509SecurityKey encryptingCertificateKey)
     {
-        var applicationContextService = app.Services.GetService(typeof(IApplicationContextService)) as IApplicationContextService;
+        var applicationContextService = app.Services.GetService(typeof(IPeasieApplicationContextService)) as IPeasieApplicationContextService;
 
         // GROUPS OF ENDPOINTS ==================================================
         var tokenHandler = app.MapGroup("/token").WithTags("Token Service API");

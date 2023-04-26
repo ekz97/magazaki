@@ -12,21 +12,22 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Peasie.Identity.App.Areas.Identity.Data;
 using Peasie.Web.Services;
 
 namespace Peasie.Web.Areas.Identity.Pages.Account
 {
     public class LoginWith2faModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<PeasieIdentityUser> _signInManager;
+        private readonly UserManager<PeasieIdentityUser> _userManager;
         private readonly ILogger<LoginWith2faModel> _logger;
         private readonly IEmailSender _emailSenderService;
         private readonly ISMSSenderService _smsSenderService;
 
         public LoginWith2faModel(
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
+            SignInManager<PeasieIdentityUser> signInManager,
+            UserManager<PeasieIdentityUser> userManager,
             ILogger<LoginWith2faModel> logger,
             IEmailSender emailSenderService,
             ISMSSenderService smsSenderService)

@@ -18,11 +18,12 @@ using PeasieLib.Middleware;
 using System.Threading.RateLimiting;
 using PeasieLib.Extensions;
 using Hangfire.Common;
-using BeneficiaryAPI.Interfaces;
 using Flurl.Http;
 using Peasie.Contracts;
 using PeasieLib.Services;
 using System.Text.Json;
+using PeasieLib;
+using PeasieLib.Interfaces;
 
 namespace BeneficiaryAPI
 {
@@ -30,11 +31,11 @@ namespace BeneficiaryAPI
     // http://localhost:5341/#/events?autorefresh
     public class Program
     {
-        private static ApplicationContextService? _applicationContextService;
+        private static PeasieApplicationContextService? _applicationContextService;
 
         public static void Main(string[] args)
         {
-            _applicationContextService = new ApplicationContextService();
+            _applicationContextService = new();
 
             // Create the app builder.
             var builder = WebApplication.CreateBuilder(args);
@@ -120,6 +121,8 @@ namespace BeneficiaryAPI
             _applicationContextService.WebHook = builder.Configuration["WebHook"]!;
             _applicationContextService.PeasieUrl = builder.Configuration["PeasieUrl"]!;
             _applicationContextService.DemoMode = bool.Parse(builder.Configuration["DemoMode"]!);
+            _applicationContextService.PeasieClientId = builder.Configuration["ClientId"]!;
+            _applicationContextService.PeasieClientSecret = builder.Configuration["ClientSecret"]!;
 
             var signingCertificate = new CertificateRequest("cn=foobar", RSA.Create(), HashAlgorithmName.SHA512, RSASignaturePadding.Pss).CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddHours(1));
             var encryptingCertificate = new CertificateRequest("cn=foobar", RSA.Create(), HashAlgorithmName.SHA512, RSASignaturePadding.Pss).CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddHours(1));
@@ -209,7 +212,7 @@ namespace BeneficiaryAPI
 
             // Add custom services to the container.
             // -------------------------------------
-            builder.Services.AddSingleton<IApplicationContextService>(_applicationContextService);
+            builder.Services.AddSingleton<IPeasieApplicationContextService>(_applicationContextService);
             builder.Services.AddScoped<IAuthorizationHandler, BeneficiaryAuthorizationHandler>();
             builder.Services.AddScoped<BeneficiaryEndpointHandler>();
 
@@ -242,7 +245,11 @@ namespace BeneficiaryAPI
             app.UseRequestDecompression();
             app.UseHsts();
             app.UseHttpsRedirection();
+
             app.MapHealthChecks("/Health");
+            app.UseRateLimiter();
+            app.UseIPWhitelist();
+
             app.UseHangfireDashboard("/Hangfire/Dashboard", new DashboardOptions
             {
                 Authorization = new[] { new HangfireAuthorizationFilter() }
@@ -298,9 +305,9 @@ namespace BeneficiaryAPI
             if (!ok)
             {
                 // request authentication token
-                BeneficiaryEndpointHandler.GetAuthenticationToken(_applicationContextService);
+                _applicationContextService?.GetAuthenticationToken();
                 // request session
-                BeneficiaryEndpointHandler.GetSession(_applicationContextService, new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "SHOP", Designation = "Colruyt" });
+                _applicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "SHOP", Designation = "Colruyt" });
             }
             else if(_applicationContextService?.DemoMode == true)
             {

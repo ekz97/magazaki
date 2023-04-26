@@ -19,10 +19,11 @@ using Flurl.Http;
 using Peasie.Contracts;
 using PeasieLib.Services;
 using PeasieLib.Extensions;
-using FinancialInstituteAPI.Interfaces;
 using FinancialInstituteAPI.Authorization;
 using FinancialInstituteAPI.Handlers;
 using FinancialInstituteAPI.Context;
+using PeasieLib;
+using PeasieLib.Interfaces;
 
 namespace FinancialInstituteAPI
 {
@@ -30,11 +31,11 @@ namespace FinancialInstituteAPI
     // http://localhost:5341/#/events?autorefresh
     public class Program
     {
-        private static ApplicationContextService? _applicationContextService;
+        private static PeasieApplicationContextService? _applicationContextService;
 
         public static void Main(string[] args)
         {
-            _applicationContextService = new ApplicationContextService();
+            _applicationContextService = new();
 
             // Create the app builder.
             var builder = WebApplication.CreateBuilder(args);
@@ -57,6 +58,13 @@ namespace FinancialInstituteAPI
                 .Enrich.WithProperty("Version", "1.0.0")
                 .ReadFrom.Configuration(ctx.Configuration));
 
+            #region health checks
+            // Add health check services.
+            // --------------------------
+            builder.Services.AddHealthChecks();
+            #endregion
+
+            #region rate limiting
             // Add rate limiter tot the container.
             // ----------------------------------
             builder.Services.AddRateLimiter(options =>
@@ -105,10 +113,13 @@ namespace FinancialInstituteAPI
                         }))
                 );
             });
+            #endregion
 
+            #region IP white listing
             // Add white listing to the container.
             // -----------------------------------
             builder.Services.Configure<IPWhitelistOptions>(builder.Configuration.GetSection("IPWhitelistOptions"));
+            #endregion
 
             // Parameters.
             // -----------
@@ -163,10 +174,6 @@ namespace FinancialInstituteAPI
                 options.DocumentFilter<CustomSwaggerFilter>();
             });
 
-            // Add health check services.
-            // --------------------------
-            builder.Services.AddHealthChecks();
-
             // Add AuthZ and AuthN services.
             // -----------------------------
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -209,7 +216,7 @@ namespace FinancialInstituteAPI
 
             // Add custom services to the container.
             // -------------------------------------
-            builder.Services.AddSingleton<IApplicationContextService>(_applicationContextService);
+            builder.Services.AddSingleton<IPeasieApplicationContextService>(_applicationContextService);
             builder.Services.AddScoped<IAuthorizationHandler, FinancialInstituteAuthorizationHandler>();
             builder.Services.AddScoped<FinancialInstituteEndpointHandler>();
 
@@ -242,7 +249,11 @@ namespace FinancialInstituteAPI
             app.UseRequestDecompression();
             app.UseHsts();
             app.UseHttpsRedirection();
+
             app.MapHealthChecks("/Health");
+            app.UseRateLimiter();
+            app.UseIPWhitelist();
+
             app.UseHangfireDashboard("/Hangfire/Dashboard", new DashboardOptions
             {
                 Authorization = new[] { new HangfireAuthorizationFilter() }
@@ -298,9 +309,9 @@ namespace FinancialInstituteAPI
             if(!ok)
             {
                 // request authentication token
-                FinancialInstituteEndpointHandler.GetAuthenticationToken(_applicationContextService);
+                _applicationContextService?.GetAuthenticationToken();
                 // request session
-                FinancialInstituteEndpointHandler.GetSession(_applicationContextService, new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "BANK", Designation = "KBC" });
+                _applicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "BANK", Designation = "KBC" });
             }
             return Results.Ok(null);
         }

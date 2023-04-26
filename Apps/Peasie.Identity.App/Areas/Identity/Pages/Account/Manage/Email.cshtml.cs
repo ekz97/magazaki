@@ -11,19 +11,20 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Peasie.Identity.App.Areas.Identity.Data;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Peasie.Web.Areas.Identity.Pages.Account.Manage
 {
     public class EmailModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<PeasieIdentityUser> _userManager;
+        private readonly SignInManager<PeasieIdentityUser> _signInManager;
         private readonly IEmailSender _emailSender;
 
         public EmailModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<PeasieIdentityUser> userManager,
+            SignInManager<PeasieIdentityUser> signInManager,
             IEmailSender emailSender)
         {
             _userManager = userManager;
@@ -73,7 +74,7 @@ namespace Peasie.Web.Areas.Identity.Pages.Account.Manage
             public string NewEmail { get; set; }
         }
 
-        private async Task LoadAsync(IdentityUser user)
+        private async Task LoadAsync(PeasieIdentityUser user)
         {
             var email = await _userManager.GetEmailAsync(user);
             Email = email;

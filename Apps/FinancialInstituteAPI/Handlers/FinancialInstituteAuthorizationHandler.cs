@@ -1,6 +1,5 @@
-﻿using FinancialInstituteAPI.Context;
-using FinancialInstituteAPI.Authorization;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using PeasieLib.Authorization;
 
 namespace FinancialInstituteAPI.Handlers
 {

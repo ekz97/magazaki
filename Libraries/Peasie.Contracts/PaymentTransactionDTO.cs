@@ -1,8 +1,10 @@
 ﻿using System.Text.Json.Serialization;
+using Peasie.Contracts.Interfaces;
 
 namespace Peasie.Contracts
 {
-    public class PaymentTransactionDTO
+
+    public class PaymentTransactionDTO : IToHtmlTable
     {
         [JsonConstructor]
         public PaymentTransactionDTO(
@@ -67,13 +69,13 @@ namespace Peasie.Contracts
         }
 
         [JsonPropertyName("id")]
-        public string Id { get; }
+        public string? Id { get; }
 
         [JsonPropertyName("shortId")]
-        public string ShortId { get; }
+        public string? ShortId { get; }
 
         [JsonPropertyName("accountId")]
-        public string AccountId { get; }
+        public string? AccountId { get; }
 
         [JsonPropertyName("createdDate")]
         public DateTime? CreatedDate { get; }
@@ -91,64 +93,64 @@ namespace Peasie.Contracts
         public string TransactionCategory { get; }
 
         [JsonPropertyName("paymentType")]
-        public string PaymentType { get; }
+        public string? PaymentType { get; }
 
         [JsonPropertyName("type")]
-        public string Type { get; }
+        public string? Type { get; }
 
         [JsonPropertyName("sourceInfo")]
-        public SourceInfoDTO SourceInfo { get; }
+        public SourceInfoDTO? SourceInfo { get; }
 
         [JsonPropertyName("destinationInfo")]
-        public DestinationInfoDTO DestinationInfo { get; }
+        public DestinationInfoDTO? DestinationInfo { get; }
 
         [JsonPropertyName("source")]
-        public object Source { get; }
+        public object? Source { get; }
 
         [JsonPropertyName("destination")]
-        public string Destination { get; }
+        public string? Destination { get; }
 
         [JsonPropertyName("totalAmount")]
-        public AmountDTO TotalAmount { get; }
+        public AmountDTO? TotalAmount { get; }
 
         [JsonPropertyName("amount")]
-        public AmountDTO Amount { get; }
+        public AmountDTO? Amount { get; }
 
         [JsonPropertyName("fee")]
         public AmountDTO Fee { get; }
 
         [JsonPropertyName("runningBalance")]
-        public AmountDTO RunningBalance { get; }
+        public AmountDTO? RunningBalance { get; }
 
         [JsonPropertyName("buyAmount")]
-        public object BuyAmount { get; }
+        public object? BuyAmount { get; }
 
         [JsonPropertyName("fxRate")]
         public object FxRate { get; }
 
         [JsonPropertyName("midMarketRate")]
-        public object MidMarketRate { get; }
+        public object? MidMarketRate { get; }
 
         [JsonPropertyName("fixedSide")]
-        public object FixedSide { get; }
+        public object? FixedSide { get; }
 
         [JsonPropertyName("status")]
-        public string Status { get; set; } // Status: shows transaction as INITIATED; possible values are INITIATED, PROCESSING, RELEASED, COMPLETED, FAILED
+        public string? Status { get; set; } // Status: shows transaction as INITIATED; possible values are INITIATED, PROCESSING, RELEASED, COMPLETED, FAILED
 
         [JsonPropertyName("failureReason")]
-        public object FailureReason { get; }
+        public object? FailureReason { get; }
 
         [JsonPropertyName("comment")]
-        public string Comment { get; }
+        public string? Comment { get; }
 
         [JsonPropertyName("transactionReference")]
-        public object TransactionReference { get; }
+        public object? TransactionReference { get; }
 
         [JsonPropertyName("referenceAmount")]
-        public object ReferenceAmount { get; }
+        public object? ReferenceAmount { get; }
 
         [JsonPropertyName("accountHolderId")]
-        public string AccountHolderId { get; }
+        public string? AccountHolderId { get; }
     }
 
     /*

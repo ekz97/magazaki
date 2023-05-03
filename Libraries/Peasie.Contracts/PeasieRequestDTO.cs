@@ -1,10 +1,12 @@
-﻿namespace Peasie.Contracts
+﻿using Peasie.Contracts.Interfaces;
+
+namespace Peasie.Contracts
 {
 
-    public class PeasieRequestDTO
+    public class PeasieRequestDTO : IToHtmlTable
     {
         public Version Version { get; set; } = new Version(1, 0, 0, 0);
-        public Guid Id { get; set; }
+        public string? Id { get; set; }
         public string? Payload { get; set; }
     }
 }

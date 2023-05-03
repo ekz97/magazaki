@@ -18,6 +18,7 @@ namespace PeasieLib.Middleware
             _next = next;
             _logger = logger;
         }
+
         public async Task Invoke(HttpContext context)
         {
             //if (context.Request.Method != HttpMethod.Get.Method)
@@ -33,9 +34,9 @@ namespace PeasieLib.Middleware
                     if ((bool)!isIPWhitelisted)
                     {
                         _logger.LogWarning(
-                        "Request from Remote IP address: {RemoteIp} is forbidden.", ipAddress);
-                        context.Response.StatusCode =
-                        (int)HttpStatusCode.Forbidden;
+                            "Request from Remote IP address: {RemoteIp} is forbidden.", ipAddress);
+                            context.Response.StatusCode =
+                            (int)HttpStatusCode.Forbidden;
                         return;
                     }
                 }

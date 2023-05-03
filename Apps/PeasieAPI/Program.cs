@@ -1,28 +1,28 @@
 global using Hangfire;
 global using Hangfire.Dashboard;
 global using Hangfire.MemoryStorage;
-global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.AspNetCore.Authorization;
-global using Microsoft.AspNetCore.Diagnostics;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.IdentityModel.Tokens;
-global using Microsoft.OpenApi.Models;
 global using PeasieLib.Filters;
 global using PeasieLib.Handlers;
-global using PeasieLib.Models.DB;
-global using System.IdentityModel.Tokens.Jwt;
-global using System.Security.Cryptography;
-global using System.Security.Cryptography.X509Certificates;
-global using System.Text;
 global using System.Text.Json;
-using Microsoft.IdentityModel.Logging;
-using Serilog;
-using System.Threading.RateLimiting;
-using PeasieLib.Middleware;
-using PeasieLib.Extensions;
 using Hangfire.Common;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.OpenApi.Models;
 using PeasieLib;
 using PeasieLib.Interfaces;
+using PeasieLib.Middleware;
+using PeasieLib.Models.DB;
+using Serilog;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.RateLimiting;
+using PeasieLib.Extensions;
+using System.IdentityModel.Tokens.Jwt;
 
 // TODO
 // Header protection
@@ -33,11 +33,11 @@ namespace PeasieAPI
 {
     public class Program
     {
-        private static PeasieApplicationContextService? _applicationContextService;
+        private static PeasieApplicationContextService? ApplicationContextService;
 
         public static void Main(string[] args)
         {
-            _applicationContextService = new();
+            ApplicationContextService = new();
 
             // Create the app builder:
             var builder = WebApplication.CreateBuilder(args);
@@ -62,7 +62,7 @@ namespace PeasieAPI
             builder.Services.AddRateLimiter(options =>
             {
                 options.OnRejected = async (context, token) =>
-                {      
+                {
                     context.HttpContext.Response.StatusCode = 429; // 418: Teapot
                     if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
                     {
@@ -111,8 +111,8 @@ namespace PeasieAPI
             // Parameters:
             var connectionString = builder.Configuration.GetConnectionString("PeasieAPIDB") ?? "";
             var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!));
-            _applicationContextService.Audience = builder.Configuration["Jwt:Audience"]!;
-            _applicationContextService.Issuer = builder.Configuration["Jwt:Issuer"]!;
+            ApplicationContextService.Audience = builder.Configuration["Jwt:Audience"]!;
+            ApplicationContextService.Issuer = builder.Configuration["Jwt:Issuer"]!;
             var signingCertificate = new CertificateRequest("cn=foobar", RSA.Create(), HashAlgorithmName.SHA512, RSASignaturePadding.Pss).CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddHours(1));
             var encryptingCertificate = new CertificateRequest("cn=foobar", RSA.Create(), HashAlgorithmName.SHA512, RSASignaturePadding.Pss).CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddHours(1));
             var signingCertificateKey = new X509SecurityKey(signingCertificate);
@@ -164,8 +164,8 @@ namespace PeasieAPI
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     RequireSignedTokens = true,
-                    ValidIssuer = _applicationContextService.Issuer,
-                    ValidAudience = _applicationContextService.Audience,
+                    ValidIssuer = ApplicationContextService.Issuer,
+                    ValidAudience = ApplicationContextService.Audience,
                     IssuerSigningKeys = signingKeys,
                     TokenDecryptionKeys = new List<SecurityKey>
                     {
@@ -197,7 +197,7 @@ namespace PeasieAPI
             builder.Services.AddRequestDecompression();
 
             // Add custom services to the container.
-            builder.Services.AddSingleton<IPeasieApplicationContextService>(_applicationContextService);
+            builder.Services.AddSingleton<IPeasieApplicationContextService>(ApplicationContextService);
             builder.Services.AddScoped<IAuthorizationHandler, PeasieAuthorizationHandler>();
             builder.Services.AddScoped<PeasieEndpointHandler>();
 
@@ -213,7 +213,7 @@ namespace PeasieAPI
             // Add the app to the container.
             var app = builder.Build();
 
-            _applicationContextService.Logger = app.Logger;
+            ApplicationContextService.Logger = app.Logger;
 
             // Map the endpoints.
             using (var scope = app.Services.CreateScope())

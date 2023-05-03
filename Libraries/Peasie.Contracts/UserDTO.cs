@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Peasie.Contracts.Interfaces;
 
 namespace Peasie.Contracts
 {
-    public class UserDTO
+    public class UserDTO : IToHtmlTable
     {
         [Required]
         public string Email { get; set; }

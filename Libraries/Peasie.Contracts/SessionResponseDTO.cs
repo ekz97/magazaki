@@ -1,6 +1,8 @@
-﻿namespace Peasie.Contracts
+﻿using Peasie.Contracts.Interfaces;
+
+namespace Peasie.Contracts
 {
-    public class SessionResponseDTO
+    public class SessionResponseDTO : IToHtmlTable
     {
         public Guid SessionGuid { get; set; }
         public DateTime ReplyTimeUtc { get; set; }

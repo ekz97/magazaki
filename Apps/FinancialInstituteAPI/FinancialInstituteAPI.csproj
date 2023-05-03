@@ -7,43 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers\**" />
-    <Compile Remove="logs\**" />
-    <Content Remove="Controllers\**" />
-    <Content Remove="logs\**" />
-    <EmbeddedResource Remove="Controllers\**" />
-    <EmbeddedResource Remove="logs\**" />
-    <None Remove="Controllers\**" />
-    <None Remove="logs\**" />
-  </ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Dapper" Version="2.0.123" />
 		<PackageReference Include="Hangfire.AspNetCore" Version="1.7.34" />
 		<PackageReference Include="Hangfire.Core" Version="1.7.34" />
 		<PackageReference Include="Hangfire.MemoryStorage.Core" Version="1.4.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.4">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.29.0" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
-		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
-		<PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
-		<PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
-		<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
-		<PackageReference Include="Serilog.Sinks.Seq" Version="5.2.2" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-	</ItemGroup>
+  </ItemGroup>
 	
-	<ItemGroup>
-		<ProjectReference Include="..\..\Libraries\PeasieLib\PeasieLib.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="logs\" />
-	</ItemGroup>
+  <ItemGroup>
+	<ProjectReference Include="..\..\Libraries\PeasieLib\PeasieLib.csproj" />
+  </ItemGroup>
+	
+  <ItemGroup>
+	<Folder Include="logs\" />
+	<Folder Include="Assets\" />
+  </ItemGroup>
 	
 </Project>

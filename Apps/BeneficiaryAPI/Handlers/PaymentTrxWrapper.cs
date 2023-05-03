@@ -1,11 +1,12 @@
 ﻿using Peasie.Contracts;
+using Peasie.Contracts.Interfaces;
 
 namespace BeneficiaryAPI.Handlers
 {
-    public class PaymentTrxWrapper
+    public class PaymentTrxWrapper: IToHtmlTable
     {
-        public PaymentTransactionDTO PaymentTrxRequest { get; set; }
-        public PaymentResponseDTO PaymentResponseDTO { get; set; }
-        public List<PaymentTransactionDTO> PaymentTrxReplyies { get; set; } = new();
+        public PaymentTransactionDTO? Request { get; set; }
+        public PaymentResponseDTO? Response { get; set; }
+        public List<PaymentTransactionDTO> Updates { get; set; } = new();
     }
 }

@@ -1,41 +1,40 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.EntityFrameworkCore;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using BeneficiaryAPI.Handlers;
-using BeneficiaryAPI.Context;
 using BeneficiaryAPI.Authorization;
-using Serilog;
-using PeasieLib.Middleware;
-using System.Threading.RateLimiting;
-using PeasieLib.Extensions;
 using Hangfire.Common;
 using Flurl.Http;
 using Peasie.Contracts;
 using PeasieLib.Services;
 using System.Text.Json;
+using BeneficiaryAPI.Context;
+using Microsoft.EntityFrameworkCore;
 using PeasieLib;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using PeasieLib.Authorization;
 using PeasieLib.Interfaces;
+using PeasieLib.Middleware;
+using Serilog;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.RateLimiting;
+using PeasieLib.Extensions;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace BeneficiaryAPI
 {
-    // Seq:
-    // http://localhost:5341/#/events?autorefresh
     public class Program
     {
-        private static PeasieApplicationContextService? _applicationContextService;
+        private static PeasieApplicationContextService? ApplicationContextService;
 
         public static void Main(string[] args)
         {
-            _applicationContextService = new();
+            ApplicationContextService = new();
 
             // Create the app builder.
             var builder = WebApplication.CreateBuilder(args);
@@ -82,27 +81,27 @@ namespace BeneficiaryAPI
                         RateLimitPartition.GetFixedWindowLimiter(httpContext.ResolveClientIpAddress(), partition =>
                             new FixedWindowRateLimiterOptions
                             {
-                                    AutoReplenishment = true,
-                                    PermitLimit = 600,
-                                    Window = TimeSpan.FromMinutes(1)
+                                AutoReplenishment = true,
+                                PermitLimit = 600,
+                                Window = TimeSpan.FromMinutes(1)
                             })),
                         PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
                         RateLimitPartition.GetFixedWindowLimiter(httpContext.ResolveClientIpAddress(), partition =>
                             new FixedWindowRateLimiterOptions
                             {
-                                    AutoReplenishment = true,
-                                    PermitLimit = 6000,
-                                    Window = TimeSpan.FromHours(1)
+                                AutoReplenishment = true,
+                                PermitLimit = 6000,
+                                Window = TimeSpan.FromHours(1)
                             })),
                         PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
                         RateLimitPartition.GetFixedWindowLimiter(httpContext.ResolveClientIpAddress(), partition =>
                         new FixedWindowRateLimiterOptions
                         {
-                                    AutoReplenishment = true,
-                                    PermitLimit = 10,
-                                    QueueLimit = 6,
-                                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                                    Window = TimeSpan.FromSeconds(1)
+                            AutoReplenishment = true,
+                            PermitLimit = 10,
+                            QueueLimit = 6,
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            Window = TimeSpan.FromSeconds(1)
                         }))
                 );
             });
@@ -116,13 +115,13 @@ namespace BeneficiaryAPI
             var connectionString = builder.Configuration.GetConnectionString("PeasieAPIDB") ?? "";
             var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!));
 
-            _applicationContextService.Issuer = builder.Configuration["Jwt:Issuer"]!;
-            _applicationContextService.Audience = builder.Configuration["Jwt:Audience"]!;
-            _applicationContextService.WebHook = builder.Configuration["WebHook"]!;
-            _applicationContextService.PeasieUrl = builder.Configuration["PeasieUrl"]!;
-            _applicationContextService.DemoMode = bool.Parse(builder.Configuration["DemoMode"]!);
-            _applicationContextService.PeasieClientId = builder.Configuration["ClientId"]!;
-            _applicationContextService.PeasieClientSecret = builder.Configuration["ClientSecret"]!;
+            ApplicationContextService.Issuer = builder.Configuration["Jwt:Issuer"]!;
+            ApplicationContextService.Audience = builder.Configuration["Jwt:Audience"]!;
+            ApplicationContextService.WebHook = builder.Configuration["WebHook"]!;
+            ApplicationContextService.PeasieUrl = builder.Configuration["PeasieUrl"]!;
+            ApplicationContextService.DemoMode = bool.Parse(builder.Configuration["DemoMode"]!);
+            ApplicationContextService.PeasieClientId = builder.Configuration["ClientId"]!;
+            ApplicationContextService.PeasieClientSecret = builder.Configuration["ClientSecret"]!;
 
             var signingCertificate = new CertificateRequest("cn=foobar", RSA.Create(), HashAlgorithmName.SHA512, RSASignaturePadding.Pss).CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddHours(1));
             var encryptingCertificate = new CertificateRequest("cn=foobar", RSA.Create(), HashAlgorithmName.SHA512, RSASignaturePadding.Pss).CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddHours(1));
@@ -181,8 +180,8 @@ namespace BeneficiaryAPI
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     RequireSignedTokens = true,
-                    ValidIssuer = _applicationContextService.Issuer,
-                    ValidAudience = _applicationContextService.Audience,
+                    ValidIssuer = ApplicationContextService.Issuer,
+                    ValidAudience = ApplicationContextService.Audience,
                     IssuerSigningKeys = signingKeys,
                     TokenDecryptionKeys = new List<SecurityKey>
                     {
@@ -212,7 +211,7 @@ namespace BeneficiaryAPI
 
             // Add custom services to the container.
             // -------------------------------------
-            builder.Services.AddSingleton<IPeasieApplicationContextService>(_applicationContextService);
+            builder.Services.AddSingleton<IPeasieApplicationContextService>(ApplicationContextService);
             builder.Services.AddScoped<IAuthorizationHandler, BeneficiaryAuthorizationHandler>();
             builder.Services.AddScoped<BeneficiaryEndpointHandler>();
 
@@ -230,7 +229,7 @@ namespace BeneficiaryAPI
             // -----------------------------
             var app = builder.Build();
 
-            _applicationContextService.Logger = app.Logger;
+            ApplicationContextService.Logger = app.Logger;
 
             // Map the endpoints.
             // ------------------
@@ -283,20 +282,20 @@ namespace BeneficiaryAPI
             // ------------
             app.Run();
         }
-
+       
         public static IResult EveryMinute()
         {
             var ok = true;
-            if (_applicationContextService?.AuthenticationToken == null || _applicationContextService.Session == null)
+            if (ApplicationContextService?.AuthenticationToken == null || ApplicationContextService.Session == null)
                 ok = false;
             else
             {
                 var sessionVerificationDTO = new SessionVerificationRequestDTO();
                 var json = JsonSerializer.Serialize<SessionVerificationRequestDTO>(sessionVerificationDTO);
-                var encrypted = EncryptionService.EncryptUsingPublicKey(json, _applicationContextService?.Session?.SessionResponse?.PublicKey);
-                var peasieRequestDTO = new PeasieRequestDTO { Id = _applicationContextService.Session.SessionResponse.SessionGuid, Payload = encrypted };
-                var url = _applicationContextService.PeasieUrl + "/session/assert";
-                var reference = url.WithOAuthBearerToken(_applicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
+                var encrypted = EncryptionService.EncryptUsingPublicKey(json, ApplicationContextService?.Session?.SessionResponse?.PublicKey);
+                var peasieRequestDTO = new PeasieRequestDTO { Id = ApplicationContextService.Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
+                var url = ApplicationContextService.PeasieUrl + "/session/assert";
+                var reference = url.WithOAuthBearerToken(ApplicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
                 if (reference.ResponseMessage.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     ok = false;
@@ -305,13 +304,13 @@ namespace BeneficiaryAPI
             if (!ok)
             {
                 // request authentication token
-                _applicationContextService?.GetAuthenticationToken();
+                ApplicationContextService?.GetAuthenticationToken();
                 // request session
-                _applicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "SHOP", Designation = "Colruyt" });
+                ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "SHOP", Designation = "Colruyt" });
             }
-            else if(_applicationContextService?.DemoMode == true)
+            else if(ApplicationContextService?.DemoMode == true)
             {
-                BeneficiaryEndpointHandler.MakePaymentRequest(_applicationContextService, new PaymentTrxDTO() { Amount = 50, Currency = "EUR" });
+                BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { Amount = 50, Currency = "EUR" });
             }
             return Results.Ok(null);
         }

@@ -2,17 +2,18 @@
 using Microsoft.IdentityModel.Tokens;
 using Peasie.Contracts;
 using PeasieLib.Interfaces;
-using PeasieLib.Models.DTO;
 using PeasieLib.Services;
 using System.Text.Json;
+using PeasieLib;
+using System.Text;
 
 namespace BeneficiaryAPI.Handlers
 {
 
     public class BeneficiaryEndpointHandler
     {
-        private SessionRequestDTOWrapper _session = new();
-        private static readonly Dictionary<Guid, PaymentTrxWrapper> _paymentTransactions = new();
+        //private SessionRequestDTOWrapper _session = new();
+        private static readonly Dictionary<string, PaymentTrxWrapper?> _paymentTransactions = new();
 
         public void RegisterAPIs(WebApplication app,
             SymmetricSecurityKey key, X509SecurityKey signingCertificateKey, X509SecurityKey encryptingCertificateKey)
@@ -24,6 +25,7 @@ namespace BeneficiaryAPI.Handlers
             var sessionHandler = app.MapGroup("/session").WithTags("Session API");
             var paymentHandler = app.MapGroup("/payment").WithTags("Payment API");
             var hookHandler = app.MapGroup("/hook").WithTags("WebHook API");
+            var adminHandler = app.MapGroup("/admin").WithTags("Admin View");
             // ======================================================================
 
             // TOKEN ================================================================
@@ -67,10 +69,26 @@ namespace BeneficiaryAPI.Handlers
                 applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::PaymentRequest");
                 return Results.Ok();
             });
+
+            // ADMIN =================================================================
+
+            _ = adminHandler.MapGet("/", () => 
+            {
+                applicationContextService?.Logger.LogDebug("-> BeneficiaryEndpointHandler::AdminIndex");
+                var html = System.IO.File.ReadAllText(@"./Assets/admin.html");
+                StringBuilder htmlContentBuilder = new();
+                htmlContentBuilder.Append(applicationContextService?.ToHtml());
+                htmlContentBuilder.Append(_paymentTransactions.IEnumerableToHtmlTable());
+                html = html.Replace("{{placeholder}}", htmlContentBuilder.ToString());
+                applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::AdminIndex");
+                return Results.Extensions.Html(html);
+            });
         }
 
         public static bool MakePaymentRequest(IPeasieApplicationContextService? applicationContextService, PaymentTrxDTO paymentParameters)
         {
+            applicationContextService?.Logger.LogDebug("-> BeneficiaryEndpointHandler::MakePaymentRequest");
+
             var valid = applicationContextService != null 
                 && applicationContextService.AuthenticationToken != null 
                 && applicationContextService.Session != null 
@@ -87,7 +105,7 @@ namespace BeneficiaryAPI.Handlers
 
                     var json = JsonSerializer.Serialize<PaymentRequestDTO>(paymentRequest);
                     var encrypted = EncryptionService.EncryptUsingPublicKey(json, applicationContextService.Session.SessionResponse.PublicKey);
-                    var peasieRequestDTO = new PeasieRequestDTO { Id = applicationContextService.Session.SessionResponse.SessionGuid, Payload = encrypted };
+                    var peasieRequestDTO = new PeasieRequestDTO { Id = applicationContextService.Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
 
                     var url = applicationContextService.PeasieUrl + "/payment/request";
                     var reference = url.WithOAuthBearerToken(applicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
@@ -108,6 +126,8 @@ namespace BeneficiaryAPI.Handlers
                 // Use the SID to request the payment transaction immediately
                 if (paymentResponseDTO != null)
                 {
+                    applicationContextService?.Logger.LogDebug($"PaymentSID: {paymentResponseDTO.PaymentSID}");
+
                     PaymentTransactionDTO paymentTrx = new(
                         id: paymentResponseDTO.PaymentSID.ToString(),
                         shortId: "",
@@ -155,7 +175,7 @@ namespace BeneficiaryAPI.Handlers
                     //_logger.LogDebug(sessionSymmetricPwdEnc.HexDump());
 
                     // Send
-                    var peasieRequestDTO = new PeasieRequestDTO { Id = applicationContextService.Session.SessionResponse.SessionGuid, Payload = encrypted };
+                    var peasieRequestDTO = new PeasieRequestDTO { Id = applicationContextService.Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
                     var url = applicationContextService.PeasieUrl + "/payment/trx";
                     var reference = url.WithOAuthBearerToken(applicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
 
@@ -177,10 +197,12 @@ namespace BeneficiaryAPI.Handlers
 
                     // TODO: compare to trx already stored...
 
-                    _paymentTransactions[paymentResponseDTO.PaymentSID] = new PaymentTrxWrapper() { PaymentTrxRequest = paymentTrx, PaymentResponseDTO = paymentResponseDTO };
-                    _paymentTransactions[paymentResponseDTO.PaymentSID].PaymentTrxReplyies.Add(paymentTrxResponse);
+                    _paymentTransactions[paymentResponseDTO.PaymentSID.ToString()] = new PaymentTrxWrapper() { Request = paymentTrx, Response = paymentResponseDTO };
+                    _paymentTransactions[paymentResponseDTO.PaymentSID.ToString()].Updates.Add(paymentTrxResponse);
                 }
             }
+
+            applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest");
             return valid;
         }
     }

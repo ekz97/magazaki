@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace FinancialInstituteAPI.Authorization
+namespace PeasieLib.Authorization
 {
     public class AuthorizationRequirement : IAuthorizationRequirement
     {

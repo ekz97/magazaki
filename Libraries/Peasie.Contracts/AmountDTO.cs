@@ -1,9 +1,10 @@
 ﻿using System.Text.Json.Serialization;
+using Peasie.Contracts.Interfaces;
 
 namespace Peasie.Contracts
 {
     // PayoutTransactionDTO myDeserializedClass = JsonSerializer.Deserialize<PayoutTransactionDTO>(myJsonResponse);
-    public class AmountDTO
+    public class AmountDTO : IToHtmlTable
     {
         [JsonConstructor]
         public AmountDTO(

@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using Peasie.Contracts.Interfaces;
 
 namespace Peasie.Contracts
 {
-    public class DestinationInfoDTO
+    public class DestinationInfoDTO: IToHtmlTable
     {
         [JsonConstructor]
         public DestinationInfoDTO(
@@ -10,15 +11,15 @@ namespace Peasie.Contracts
             string identifier
         )
         {
-            this.type = type;
-            this.identifier = identifier;
+            this.Type = type;
+            this.Identifier = identifier;
         }
 
         [JsonPropertyName("type")]
-        public string type { get; }
+        public string Type { get; }
 
         [JsonPropertyName("identifier")]
-        public string identifier { get; }
+        public string Identifier { get; }
     }
 
     /*

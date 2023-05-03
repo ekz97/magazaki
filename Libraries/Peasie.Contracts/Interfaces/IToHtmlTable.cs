@@ -1,30 +1,8 @@
-﻿using System.Text.Json.Serialization;
-using Peasie.Contracts.Interfaces;
-
-namespace Peasie.Contracts
+﻿namespace Peasie.Contracts.Interfaces
 {
-    public class SourceInfoDTO : IToHtmlTable
+    // Interface helps to identify using Reflection
+    public interface IToHtmlTable
     {
-        [JsonConstructor]
-        public SourceInfoDTO(
-            string type,
-            string identifier,
-            string internalAccountId
-        )
-        {
-            this.type = type;
-            this.Identifier = identifier;
-            this.InternalAccountId = internalAccountId;
-        }
-
-        [JsonPropertyName("type")]
-        public string type { get; }
-
-        [JsonPropertyName("identifier")]
-        public string Identifier { get; }
-
-        [JsonPropertyName("internalAccountId")]
-        public string InternalAccountId { get; }
     }
 
     /*

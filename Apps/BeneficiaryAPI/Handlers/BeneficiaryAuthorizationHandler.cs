@@ -1,6 +1,5 @@
-﻿using BeneficiaryAPI.Authorization;
-using BeneficiaryAPI.Context;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using PeasieLib.Authorization;
 
 namespace BeneficiaryAPI.Handlers
 {

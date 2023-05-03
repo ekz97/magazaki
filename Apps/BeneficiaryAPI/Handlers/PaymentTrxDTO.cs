@@ -6,10 +6,11 @@ namespace BeneficiaryAPI.Handlers
     {
         [Required]
         public string? TransactionId { get; set; }
-        [Required]
-        public decimal Amount { get; set; }
-        [Required]
 
+        [Required]
+        public decimal? Amount { get; set; }
+
+        [Required]
         private string _currency = "EUR";
         public string? Currency { get { return _currency; } set {
                 _currency = !string.IsNullOrWhiteSpace(value) &&
@@ -19,6 +20,7 @@ namespace BeneficiaryAPI.Handlers
                 : throw new ArgumentException("Currency value was not allowed. Value: " + value);
             }
         }
+
         public string? Comment { get; set; }
     }
 }

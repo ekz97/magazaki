@@ -1,26 +1,29 @@
-﻿using Flurl.Http;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using Peasie.Contracts;
 using PeasieLib.Services;
 using System.Text.Json;
-using PeasieLib.Models.DTO;
 using PeasieLib.Interfaces;
+using FinancialInstituteAPI.Interfaces;
+using PeasieLib;
+using System.Text;
 
 namespace FinancialInstituteAPI.Handlers
 {
     public class FinancialInstituteEndpointHandler
     {
-        private readonly Dictionary<Guid, PaymentWrapper> _paymentHistory = new();
+        private readonly Dictionary<string, PaymentWrapper> _paymentHistory = new();
 
         public void RegisterAPIs(WebApplication app,
             SymmetricSecurityKey key, X509SecurityKey signingCertificateKey, X509SecurityKey encryptingCertificateKey)
         {
             var applicationContextService = app.Services.GetService(typeof(IPeasieApplicationContextService)) as IPeasieApplicationContextService;
+            var financialTransactionProcessor = app.Services.GetService(typeof(IPaymentTransactionService)) as IPaymentTransactionService;
 
             // GROUPS OF ENDPOINTS ==================================================
             var authenticationHandler = app.MapGroup("/token").WithTags("Authentication API");
             var sessionHandler = app.MapGroup("/session").WithTags("Session API");
             var paymentHandler = app.MapGroup("/payment").WithTags("Payment API");
+            var adminHandler = app.MapGroup("/admin").WithTags("Admin View");
             // ======================================================================
 
             // TOKEN ================================================================
@@ -67,8 +70,8 @@ namespace FinancialInstituteAPI.Handlers
                 TokenService.GeneratePPKRandomly(out string privateKey, out string publicKey);
                 var paymentResponseDTO = new PaymentResponseDTO
                 {
-                    SourceGuid = paymentRequest.Guid,
-                    PaymentSID = paymentSID,
+                    SourceGuid = paymentRequest.Guid.ToString(),
+                    PaymentSID = paymentSID.ToString(),
                     ReplyTimeUtc = DateTime.UtcNow,
                     ValidityTimeSpan = new TimeSpan(0, 30, 0),
                     FinancialInstitutePublicKey = publicKey
@@ -89,7 +92,7 @@ namespace FinancialInstituteAPI.Handlers
                 };
 
                 // remember
-                _paymentHistory[paymentSID] = new PaymentWrapper() { PaymentRequest = paymentRequest, PaymentResponse = paymentResponseDTO, FinancialInstitutePrivateKey = privateKey }; // private key is of bank!
+                _paymentHistory[paymentSID.ToString()] = new PaymentWrapper() { Request = paymentRequest, Response = paymentResponseDTO, FinancialInstitutePrivateKey = privateKey }; // private key is of bank!
 
                 applicationContextService?.Logger.LogDebug("<- FinancialInstituteEndpointHandler::PaymentRequest");
                 return Results.Ok(reply);
@@ -115,13 +118,17 @@ namespace FinancialInstituteAPI.Handlers
                 var paymentRequest = _paymentHistory[bankPeasieRequestDTO.Id];
                 var decryptedBankTrx = EncryptionService.DecryptUsingPrivateKey(bankPeasieRequestDTO.Payload, paymentRequest.FinancialInstitutePrivateKey);
 
-                var bankTrx = JsonSerializer.Deserialize<PaymentTransactionDTO>(decryptedBankTrx);
+                var trx = JsonSerializer.Deserialize<PaymentTransactionDTO>(decryptedBankTrx);
 
-                bankTrx.Status = "COMPLETED"; // TODO: adapt own history!!
+                if (trx != null)
+                {
+                    trx = financialTransactionProcessor?.Process(trx);
+                    // trx.Status = "COMPLETED"; // TODO: adapt own history!!
+                }
 
-                var jsonBank = JsonSerializer.Serialize<PaymentTransactionDTO>(bankTrx);
+                var jsonBank = JsonSerializer.Serialize<PaymentTransactionDTO>(trx);
 
-                var encryptedBankResponse = EncryptionService.EncryptUsingPublicKey(jsonBank, paymentRequest.PaymentRequest.BeneficiaryPublicKey);
+                var encryptedBankResponse = EncryptionService.EncryptUsingPublicKey(jsonBank, paymentRequest.Request.BeneficiaryPublicKey);
  
                 var bankReply = new PeasieReplyDTO
                 {
@@ -139,51 +146,20 @@ namespace FinancialInstituteAPI.Handlers
                 applicationContextService?.Logger.LogDebug("<- FinancialInstituteEndpointHandler::PaymentTrx");
                 return Results.Ok(reply);
             }).RequireAuthorization("IsAuthorized");
-        }
 
-        /*
-        public static void GetAuthenticationToken(IPeasieApplicationContextService? applicationContextService)
-        {
-            var url = applicationContextService?.PeasieUrl + "/token/generateEncryptedToken";
-            applicationContextService.AuthenticationToken = url.GetStringAsync().Result;
-        }
+            // ADMIN =================================================================
 
-        public static bool GetSession(IPeasieApplicationContextService? applicationContextService, UserDTO userDTO)
-        {
-            // request session key
-            var rsa = TokenService.GeneratePPKRandomly(out string privateKey, out string publicKey);
-            var sessionRequest = new SessionRequestDTO
+            _ = adminHandler.MapGet("/", () =>
             {
-                PublicKey = publicKey
-            };
-            var url = applicationContextService?.PeasieUrl + "/session/request";
-            var reference = url.WithOAuthBearerToken(applicationContextService?.AuthenticationToken).PostJsonAsync(sessionRequest).Result;
-            var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
-            if (string.IsNullOrEmpty(reply.Payload))
-                return false;
-            var decrypted = EncryptionService.DecryptUsingPrivateKey(reply.Payload, privateKey);
-            var sessionResponse = System.Text.Json.JsonSerializer.Deserialize<SessionResponseDTO>(decrypted);
-
-            // remember
-            var wrapper = new SessionRequestDTOWrapper { SessionRequest = sessionRequest, SessionResponse = sessionResponse, PrivateKey = privateKey, PublicKey = publicKey };
-            applicationContextService.Session = wrapper;
-
-            if (applicationContextService.Session == null || applicationContextService.Session.SessionResponse == null)
-                return false;
-
-            // send session details
-            var sessionDetailsDTO = new SessionDetailsDTO() { Guid = applicationContextService.Session.SessionResponse.SessionGuid, User = userDTO, Issuer = applicationContextService.Issuer, Audience = applicationContextService.Audience, WebHook = applicationContextService.WebHook, JWTAuthorizationToken = applicationContextService.AuthenticationToken };
-            var json = JsonSerializer.Serialize<SessionDetailsDTO>(sessionDetailsDTO);
-            var encrypted = EncryptionService.EncryptUsingPublicKey(json, applicationContextService.Session.SessionResponse.PublicKey);
-            var peasieRequestDTO = new PeasieRequestDTO { Id = applicationContextService.Session.SessionResponse.SessionGuid, Payload = encrypted };
-            url = applicationContextService.PeasieUrl + "/session/details";
-            reference = url.WithOAuthBearerToken(applicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
-
-            // remember
-            applicationContextService.Session.SessionDetails = sessionDetailsDTO;
-
-            return true;
+                applicationContextService?.Logger.LogDebug("-> FinancialInstituteEndpointHandler::AdminIndex");
+                var html = System.IO.File.ReadAllText(@"./Assets/admin.html");
+                StringBuilder htmlContentBuilder = new();
+                htmlContentBuilder.Append(applicationContextService?.ToHtml());
+                //htmlContentBuilder.Append(_paymentTransactions.IEnumerableToHtmlTable());
+                html = html.Replace("{{placeholder}}", htmlContentBuilder.ToString());
+                applicationContextService?.Logger.LogDebug("<- FinancialInstituteEndpointHandler::AdminIndex");
+                return Results.Extensions.Html(html);
+            });
         }
-        */
     }
 }

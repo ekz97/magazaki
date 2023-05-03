@@ -2,12 +2,13 @@
 using Peasie.Contracts;
 using PeasieLib.Interfaces;
 using PeasieLib.Services;
+using System.Text;
 
 namespace PeasieLib.Handlers;
 
 public class PeasieEndpointHandler
 {
-    private readonly Dictionary<Guid, SessionWrapper> _sessions = new();
+    private readonly Dictionary<string, SessionWrapper> _sessions = new();
     private readonly string _basicFinancialInstituteUrl = "https://localhost:7126";
 
     public void RegisterAPIs(WebApplication app,
@@ -21,6 +22,7 @@ public class PeasieEndpointHandler
         var paymentHandler = app.MapGroup("/payment").WithTags("Payment Service API");
         var hookHandler = app.MapGroup("/hook").WithTags("WebHook API");
         var hangfireHandler = app.MapGroup("/hangfire").WithTags("Hangfire Service API");
+        var adminHandler = app.MapGroup("/admin").WithTags("Admin View");
 
         /*
         var nlogHandler = app.MapGroup("/nlog").WithTags("NLog, EF and Dapper Services API");
@@ -117,7 +119,7 @@ public class PeasieEndpointHandler
             };
 
             // remember
-            _sessions[sessionGuid] = new SessionWrapper() { SessionRequest = sessionRequest, SessionResponse = sessionResponseDTO, PrivateKey = peasiePrivateKey };
+            _sessions[sessionGuid.ToString()] = new SessionWrapper() { SessionRequest = sessionRequest, SessionResponse = sessionResponseDTO, PrivateKey = peasiePrivateKey };
 
             applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::SessionRequest");
             return Results.Ok(reply);
@@ -218,7 +220,7 @@ public class PeasieEndpointHandler
 
             PeasieRequestDTO bankPeasieRequestDTO = new()
             {
-                Id = bankSession.SessionResponse.SessionGuid,
+                Id = bankSession.SessionResponse.SessionGuid.ToString(),
                 Payload = EncryptionService.EncryptUsingPublicKey(decrypted, bankSession.SessionRequest.PublicKey)
             };
 
@@ -276,7 +278,7 @@ public class PeasieEndpointHandler
 
             var newPeasieRequestDTO = new PeasieRequestDTO()
             {
-                Id = bankSession.SessionResponse.SessionGuid,
+                Id = bankSession.SessionResponse.SessionGuid.ToString(),
                 Payload = EncryptionService.EncryptUsingPublicKey(decrypted, bankSession.SessionRequest.PublicKey)
             };
 
@@ -306,6 +308,19 @@ public class PeasieEndpointHandler
             return Results.Ok(bankReplyToBeneficiary);
         }).RequireAuthorization("IsAuthorized");
 
+        // ADMIN =================================================================
+
+        _ = adminHandler.MapGet("/", () =>
+        {
+            applicationContextService?.Logger.LogDebug("-> BeneficiaryEndpointHandler::AdminIndex");
+            var html = System.IO.File.ReadAllText(@"./Assets/admin.html");
+            StringBuilder htmlContentBuilder = new();
+            htmlContentBuilder.Append(applicationContextService?.ToHtml());
+            // htmlContentBuilder.Append(_paymentTransactions.IEnumerableToHtmlTable());
+            html = html.Replace("{{placeholder}}", htmlContentBuilder.ToString());
+            applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::AdminIndex");
+            return Results.Extensions.Html(html);
+        });
 
         /*
         _ = hangfireHandler.MapGet("/recurringTryToken", () =>

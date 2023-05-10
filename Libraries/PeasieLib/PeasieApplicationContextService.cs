@@ -29,6 +29,9 @@ namespace PeasieLib
         public string? PeasieClientId { get; set; } // email registered in identity
         public string? PeasieClientSecret { get; set; } // password registered in identity  
         public SymmetricSecurityKey? SymmetricKey { get; set; }
+
+        public TimeSpan Lifetime { get; set; }
+
         public System.Security.Cryptography.X509Certificates.X509Certificate2? SigningCertificate { get; set; }
         public System.Security.Cryptography.X509Certificates.X509Certificate2? EncryptingCertificate { get; set; }
         public X509SecurityKey? SigningCertificateKey { get; set; }

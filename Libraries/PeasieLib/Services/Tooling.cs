@@ -1,8 +1,39 @@
-﻿using System.Text;
-
+﻿using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
+using System.Data;
+using System.Text;
 
 namespace PeasieLib.Services
 {
+    public static class EFSqlHelper
+    {
+        public static List<T> RawSqlQuery<T>(DbContext dbContext, string query, Func<DbDataReader, T> map)
+        {
+            using (var context = dbContext)
+            {
+                using (var command = context.Database.GetDbConnection().CreateCommand())
+                {
+                    command.CommandText = query;
+                    command.CommandType = CommandType.Text;
+
+                    context.Database.OpenConnection();
+
+                    using (var result = command.ExecuteReader())
+                    {
+                        var entities = new List<T>();
+
+                        while (result.Read())
+                        {
+                            entities.Add(map(result));
+                        }
+
+                        return entities;
+                    }
+                }
+            }
+        }
+    }
+
     public static class Utils
     {
         public static string HexDump(this byte[] bytes, int bytesPerLine = 16)

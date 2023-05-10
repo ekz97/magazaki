@@ -50,7 +50,7 @@ namespace BeneficiaryAPI
             // -----------------------------
             builder.Logging.AddJsonConsole();
 
-            builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Debug()
+            builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Debug()            
                 .Enrich.WithThreadId()
                 .Enrich.WithThreadName()
                 .Enrich.FromLogContext()
@@ -169,36 +169,40 @@ namespace BeneficiaryAPI
             // --------------------------
             builder.Services.AddHealthChecks();
 
+            // https://andrewlock.net/a-look-behind-the-jwt-bearer-authentication-middleware-in-asp-net-core/
+            // https://auth0.com/docs/quickstart/backend/aspnet-core-webapi/03-troubleshooting
+            // LVET TODO: Bearer was not authenticated. Failure message: No SecurityTokenValidator available for token.
+
             // Add AuthZ and AuthN services.
             // -----------------------------
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    RequireSignedTokens = true,
-                    ValidIssuer = ApplicationContextService.Issuer,
-                    ValidAudience = ApplicationContextService.Audience,
-                    IssuerSigningKeys = signingKeys,
-                    TokenDecryptionKeys = new List<SecurityKey>
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
                     {
-                        new EncryptingCredentials(symmetricKey, JwtConstants.DirectKeyUseAlg, SecurityAlgorithms.Aes256CbcHmacSha512).Key,
-                        new EncryptingCredentials(encryptingCertificateKey, SecurityAlgorithms.RsaOAEP, SecurityAlgorithms.Aes256CbcHmacSha512).Key
-                    },
-                    IssuerSigningKeyResolver = (token, securityToken, kid, validationParameters) => signingKeys
-                };
-            });
-            builder.Services.AddAuthorization(options => options.AddPolicy("IsAuthorized", policy => policy.Requirements.Add(new AuthorizationRequirement())));
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = true,
+                            ValidateAudience = true,
+                            ValidateLifetime = true,
+                            ValidateIssuerSigningKey = true,
+                            RequireSignedTokens = true,
+                            ValidIssuer = ApplicationContextService.Issuer,
+                            ValidAudience = ApplicationContextService.Audience,
+                            IssuerSigningKeys = signingKeys,
+                            TokenDecryptionKeys = new List<SecurityKey>
+                            {
+                                new EncryptingCredentials(symmetricKey, JwtConstants.DirectKeyUseAlg, SecurityAlgorithms.Aes256CbcHmacSha512).Key,
+                                new EncryptingCredentials(encryptingCertificateKey, SecurityAlgorithms.RsaOAEP, SecurityAlgorithms.Aes256CbcHmacSha512).Key
+                            },
+                            IssuerSigningKeyResolver = (token, securityToken, kid, validationParameters) => signingKeys
+                        };
+                    });
 
             // Add DB services.
             // ----------------
             var serverVersion = new MySqlServerVersion(new Version(8, 0, 31));
             builder.Services.AddDbContext<BeneficiaryAPIDbContext>(options =>
                     options.UseMySql(connectionString, serverVersion)
-                    .UseLoggerFactory(LoggerFactory.Create(b => b.AddFilter(level => level >= LogLevel.Information)))
+                    .UseLoggerFactory(LoggerFactory.Create(b => b.AddFilter(level => level >= LogLevel.Debug)))
                     .EnableSensitiveDataLogging()
                     .EnableDetailedErrors()
                 );
@@ -209,11 +213,17 @@ namespace BeneficiaryAPI
             builder.Services.AddResponseCompression();
             builder.Services.AddRequestDecompression();
 
+            // Add Controller support - difference minimal apis
+            // ----------------------
+            builder.Services.AddControllers();
+
             // Add custom services to the container.
             // -------------------------------------
             builder.Services.AddSingleton<IPeasieApplicationContextService>(ApplicationContextService);
             builder.Services.AddScoped<IAuthorizationHandler, BeneficiaryAuthorizationHandler>();
             builder.Services.AddScoped<BeneficiaryEndpointHandler>();
+
+            builder.Services.AddAuthorization(options => options.AddPolicy("IsAuthorized", policy => policy.Requirements.Add(new AuthorizationRequirement())));
 
             // Add third-parties services to the container.
             // --------------------------------------------
@@ -246,8 +256,9 @@ namespace BeneficiaryAPI
             app.UseHttpsRedirection();
 
             app.MapHealthChecks("/Health");
+            
             app.UseRateLimiter();
-            app.UseIPWhitelist();
+            app.UseIPWhitelist();            
 
             app.UseHangfireDashboard("/Hangfire/Dashboard", new DashboardOptions
             {
@@ -278,6 +289,9 @@ namespace BeneficiaryAPI
             var recurringJobManager = new RecurringJobManager();
             recurringJobManager.AddOrUpdate("EveryMinute", Job.FromExpression(() => EveryMinute()), Cron.Minutely());
 
+            // Activate Controllers - difference minimal aps
+            app.MapControllers(); 
+
             // Run the app.
             // ------------
             app.Run();
@@ -285,6 +299,7 @@ namespace BeneficiaryAPI
        
         public static IResult EveryMinute()
         {
+            ApplicationContextService?.Logger?.LogDebug("-> BeneficiaryAPI::EveryMinute");
             var ok = true;
             if (ApplicationContextService?.AuthenticationToken == null || ApplicationContextService.Session == null)
                 ok = false;
@@ -295,23 +310,33 @@ namespace BeneficiaryAPI
                 var encrypted = EncryptionService.EncryptUsingPublicKey(json, ApplicationContextService?.Session?.SessionResponse?.PublicKey);
                 var peasieRequestDTO = new PeasieRequestDTO { Id = ApplicationContextService.Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
                 var url = ApplicationContextService.PeasieUrl + "/session/assert";
-                var reference = url.WithOAuthBearerToken(ApplicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
-                if (reference.ResponseMessage.StatusCode != System.Net.HttpStatusCode.OK)
+                try
                 {
+                    var reference = url.WithOAuthBearerToken(ApplicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
+                    if (reference.ResponseMessage.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        ok = false;
+                    }
+                } catch(Exception ex)
+                {
+                    ApplicationContextService.AuthenticationToken = null;
+                    ApplicationContextService.Session = null;
                     ok = false;
                 }
             }
             if (!ok)
             {
+                ApplicationContextService?.Logger?.LogDebug("BeneficiaryAPI::EveryMinute requesting token and session");
                 // request authentication token
                 ApplicationContextService?.GetAuthenticationToken();
                 // request session
-                ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "SHOP", Designation = "Colruyt" });
+                ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Secret = "MijnGeheim", Type = "SHOP", Designation = "Colruyt" });
             }
             else if(ApplicationContextService?.DemoMode == true)
             {
                 BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { Amount = 50, Currency = "EUR" });
             }
+            ApplicationContextService?.Logger?.LogDebug("<- BeneficiaryAPI::EveryMinute");
             return Results.Ok(null);
         }
     }

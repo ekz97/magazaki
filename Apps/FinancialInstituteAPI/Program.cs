@@ -205,7 +205,7 @@ namespace FinancialInstituteAPI
             var serverVersion = new MySqlServerVersion(new Version(8, 0, 31));
             builder.Services.AddDbContext<FinancialInstituteAPIDbContext>(options =>
                     options.UseMySql(connectionString, serverVersion)
-                    .UseLoggerFactory(LoggerFactory.Create(b => b.AddFilter(level => level >= LogLevel.Information)))
+                    .UseLoggerFactory(LoggerFactory.Create(b => b.AddFilter(level => level >= LogLevel.Debug)))
                     .EnableSensitiveDataLogging()
                     .EnableDetailedErrors()
                 );
@@ -287,7 +287,7 @@ namespace FinancialInstituteAPI
 
             var recurringJobManager = new RecurringJobManager();
             recurringJobManager.AddOrUpdate("EveryMinute", Job.FromExpression(() => EveryMinute()), Cron.Minutely());
-
+            
             // Run the app.
             // ------------
             app.Run();
@@ -305,14 +305,24 @@ namespace FinancialInstituteAPI
                 var encrypted = EncryptionService.EncryptUsingPublicKey(json, ApplicationContextService?.Session?.SessionResponse?.PublicKey);
                 var peasieRequestDTO = new PeasieRequestDTO { Id = ApplicationContextService.Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
                 var url = ApplicationContextService.PeasieUrl + "/session/assert";
-                var reference = url.WithOAuthBearerToken(ApplicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
-                if (reference.ResponseMessage.StatusCode != System.Net.HttpStatusCode.OK)
+                try
                 {
+                    var reference = url.WithOAuthBearerToken(ApplicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
+                    if (reference.ResponseMessage.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        ok = false;
+                    }
+                }
+                catch(Exception ex)
+                {
+                    ApplicationContextService.AuthenticationToken = null;
+                    ApplicationContextService.Session = null;
                     ok = false;
                 }
             }
             if(!ok)
             {
+                ApplicationContextService?.Logger?.LogDebug("FinancialInstituteAPI::EveryMinute requesting token and session");
                 // request authentication token
                 ApplicationContextService?.GetAuthenticationToken();
                 // request session

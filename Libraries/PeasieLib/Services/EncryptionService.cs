@@ -75,7 +75,7 @@ namespace PeasieLib.Services
             }
         }
 
-        public static string EncryptUsingPublicKey(string data, string publicKeyXml /*, out byte[] symmetricPwd*/)
+        public static string EncryptUsingPublicKey(string data, string publicKeyXml)
         {
             using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider())
             {
@@ -98,7 +98,7 @@ namespace PeasieLib.Services
             }
         }
 
-        public static string DecryptUsingPrivateKey(string cipherText, string privateKeyXml /*, out byte[] symmetricPwd*/)
+        public static string DecryptUsingPrivateKey(string cipherText, string privateKeyXml)
         {
             var parts = cipherText.Split(" ");
             var length = int.Parse(parts[0]);

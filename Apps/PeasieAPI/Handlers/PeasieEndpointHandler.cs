@@ -1,5 +1,6 @@
 ﻿using Flurl.Http;
 using Peasie.Contracts;
+using PeasieAPI.Services.Interfaces;
 using PeasieLib.Interfaces;
 using PeasieLib.Services;
 using System.Text;
@@ -8,13 +9,13 @@ namespace PeasieLib.Handlers;
 
 public class PeasieEndpointHandler
 {
-    private readonly Dictionary<string, SessionWrapper> _sessions = new();
     private readonly string _basicFinancialInstituteUrl = "https://localhost:7126";
 
     public void RegisterAPIs(WebApplication app,
         SymmetricSecurityKey key, X509SecurityKey signingCertificateKey, X509SecurityKey encryptingCertificateKey)
     {
         var applicationContextService = app.Services.GetService(typeof(IPeasieApplicationContextService)) as IPeasieApplicationContextService;
+        IDataManagerService? dataManagerService = app.Services.GetService(typeof(IDataManagerService)) as IDataManagerService;
 
         // GROUPS OF ENDPOINTS ==================================================
         var tokenHandler = app.MapGroup("/token").WithTags("Token Service API");
@@ -95,7 +96,7 @@ public class PeasieEndpointHandler
 
         // SESSION ==============================================================
 
-        _ = sessionHandler.MapPost("/request", (SessionRequestDTO sessionRequest) => 
+        _ = sessionHandler.MapPost("/request", (SessionRequestDTO sessionRequest) =>
         {
             applicationContextService?.Logger.LogDebug("-> PeasieEndpointHandler::SessionRequest");
             if (string.IsNullOrEmpty(sessionRequest.PublicKey))
@@ -107,7 +108,7 @@ public class PeasieEndpointHandler
             {
                 SessionGuid = sessionGuid,
                 ReplyTimeUtc = DateTime.UtcNow,
-                ValidityTimeSpan = new TimeSpan(0, 30, 0), // TODO: configure
+                ValidityTimeSpan = ((applicationContextService == null) ? new TimeSpan(0, 0, 30) : applicationContextService.Lifetime),
                 PublicKey = peasiePublicKey
             };
 
@@ -119,16 +120,16 @@ public class PeasieEndpointHandler
             };
 
             // remember
-            _sessions[sessionGuid.ToString()] = new SessionWrapper() { SessionRequest = sessionRequest, SessionResponse = sessionResponseDTO, PrivateKey = peasiePrivateKey };
+            dataManagerService.Sessions[sessionGuid.ToString()] = new SessionWrapper() { SessionRequest = sessionRequest, SessionResponse = sessionResponseDTO, PrivateKey = peasiePrivateKey };
 
             applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::SessionRequest");
             return Results.Ok(reply);
-        }).RequireAuthorization("IsAuthorized");
+        });
 
         _ = sessionHandler.MapPost("/details", (PeasieRequestDTO peasieRequestDTO) =>
         {
             applicationContextService?.Logger.LogDebug("-> PeasieEndpointHandler::SessionDetails");
-            var session = _sessions[peasieRequestDTO.Id];
+            var session = dataManagerService.Sessions[peasieRequestDTO.Id];
             if(session == null)
                 return Results.BadRequest();
 
@@ -141,26 +142,39 @@ public class PeasieEndpointHandler
             }
 
             // remember
-            _sessions[peasieRequestDTO.Id].SessionDetails = sessionDetailsDTO;
+            dataManagerService.Sessions[peasieRequestDTO.Id].SessionDetails = sessionDetailsDTO;
+
+            // Set ASPNET user for authentication and authorization...
 
             applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::SessionDetails");
             return Results.Ok();
-        }).RequireAuthorization("IsAuthorized");
+        });
 
         _ = sessionHandler.MapPost("/assert", (PeasieRequestDTO peasieRequestDTO) =>
         {
             applicationContextService?.Logger.LogDebug("-> PeasieEndpointHandler::Assert");
-            var session = _sessions[peasieRequestDTO.Id];
-            string? decrypted = null;
-            if (session != null && !string.IsNullOrEmpty(session.PrivateKey))
+            SessionWrapper? session;
+            if (dataManagerService != null && dataManagerService.Sessions.ContainsKey(peasieRequestDTO.Id))
             {
-                decrypted = EncryptionService.DecryptUsingPrivateKey(peasieRequestDTO.Payload, session.PrivateKey);
-                var sessionVerificationRequestDTO = JsonSerializer.Deserialize<SessionVerificationRequestDTO>(decrypted);
-                if (string.IsNullOrEmpty(decrypted) || sessionVerificationRequestDTO == null)
-                    return Results.BadRequest();            
+                if (dataManagerService.Sessions.TryGetValue(peasieRequestDTO.Id, out session))
+                {
+                    string? decrypted = null;
+                    if (session != null && !string.IsNullOrEmpty(session.PrivateKey))
+                    {
+                        decrypted = EncryptionService.DecryptUsingPrivateKey(peasieRequestDTO.Payload, session.PrivateKey);
+                        var sessionVerificationRequestDTO = JsonSerializer.Deserialize<SessionVerificationRequestDTO>(decrypted);
+                        if (string.IsNullOrEmpty(decrypted) || sessionVerificationRequestDTO == null)
+                            return Results.BadRequest();
+                    }
+                }
+                else return Results.Problem();
+            }
+            else
+            {
+                return Results.NotFound();
             }
 
-            applicationContextService?.Logger.LogDebug($"Session {session.SessionDetails.User.Type} verified");
+            applicationContextService?.Logger.LogDebug($"Session {session?.SessionDetails?.User?.Type} verified");
             applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::Assert");
             return Results.Ok();
         }).RequireAuthorization("IsAuthorized");
@@ -172,7 +186,7 @@ public class PeasieEndpointHandler
             applicationContextService?.Logger.LogDebug("-> PeasieEndpointHandler::PaymentTrxUpdate");
 
             // Decrypt using bank session public key
-            var session = _sessions[peasieRequestDTO.Id];
+            var session = dataManagerService.Sessions[peasieRequestDTO.Id];
             string? decrypted = null;
 
             if (session == null)
@@ -184,7 +198,7 @@ public class PeasieEndpointHandler
 
             applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentTrxUpdate");
             return Results.Ok();
-        });
+        }).RequireAuthorization("IsAuthorized");
 
         // PAYMENT ==============================================================
 
@@ -193,7 +207,7 @@ public class PeasieEndpointHandler
             applicationContextService?.Logger.LogDebug("-> PeasieEndpointHandler::PaymentRequest");
             PaymentRequestDTO? paymentRequest = null;
 
-            var session = _sessions[peasieRequestDTO.Id];
+            var session = dataManagerService.Sessions[peasieRequestDTO.Id];
             string? decrypted = null;
             if (session != null && !string.IsNullOrEmpty(session.PrivateKey))
             {
@@ -209,7 +223,7 @@ public class PeasieEndpointHandler
 
             // we encrypt for bank
             // search bank session: email
-            var bankSession = _sessions.Values.Where(s => s.SessionResponse != null && s.SessionDetails.User.Email == paymentRequest.SessionDetails.User.Email && s.SessionDetails.User.Type.ToLowerInvariant() == "bank").FirstOrDefault();
+            var bankSession = dataManagerService.Sessions.Values.Where(s => s.SessionResponse != null && s.SessionDetails.User.Email == paymentRequest.SessionDetails.User.Email && s.SessionDetails.User.Type.ToLowerInvariant() == "bank").FirstOrDefault();
 
             if (bankSession == null)
             {
@@ -252,7 +266,7 @@ public class PeasieEndpointHandler
 
             PeasieRequestDTO? bankPeasieRequestDTO = null;
 
-            var session = _sessions[peasieRequestDTO.Id];
+            var session = dataManagerService.Sessions[peasieRequestDTO.Id];
             string decrypted = null;
             if (session != null && !string.IsNullOrEmpty(session.PrivateKey))
             {
@@ -267,7 +281,7 @@ public class PeasieEndpointHandler
             }
 
             // we decrypt for the bank
-            var bankSession = _sessions.Values.Where(s => s.SessionResponse != null && s.SessionDetails.User.Email == session.SessionDetails.User.Email && s.SessionDetails.User.Type.ToLowerInvariant() == "bank").FirstOrDefault();
+            var bankSession = dataManagerService.Sessions.Values.Where(s => s.SessionResponse != null && s.SessionDetails.User.Email == session.SessionDetails.User.Email && s.SessionDetails.User.Type.ToLowerInvariant() == "bank").FirstOrDefault();
 
             if (bankSession == null)
             {

@@ -23,6 +23,8 @@ using System.Text;
 using System.Threading.RateLimiting;
 using PeasieLib.Extensions;
 using System.IdentityModel.Tokens.Jwt;
+using PeasieAPI.Services.Interfaces;
+using PeasieAPI.Services;
 
 // TODO
 // Header protection
@@ -34,11 +36,10 @@ namespace PeasieAPI
     public class Program
     {
         private static PeasieApplicationContextService? ApplicationContextService;
+        private static DataManagerService? DataManagerService;
 
         public static void Main(string[] args)
         {
-            ApplicationContextService = new();
-
             // Create the app builder:
             var builder = WebApplication.CreateBuilder(args);
 
@@ -108,11 +109,15 @@ namespace PeasieAPI
 
             builder.Services.Configure<IPWhitelistOptions>(builder.Configuration.GetSection("IPWhitelistOptions"));
 
+            ApplicationContextService = new();
+            DataManagerService = new();
+
             // Parameters:
             var connectionString = builder.Configuration.GetConnectionString("PeasieAPIDB") ?? "";
             var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!));
             ApplicationContextService.Audience = builder.Configuration["Jwt:Audience"]!;
             ApplicationContextService.Issuer = builder.Configuration["Jwt:Issuer"]!;
+            ApplicationContextService.Lifetime = new TimeSpan(0, 0, 30); // 30 seconds
             var signingCertificate = new CertificateRequest("cn=foobar", RSA.Create(), HashAlgorithmName.SHA512, RSASignaturePadding.Pss).CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddHours(1));
             var encryptingCertificate = new CertificateRequest("cn=foobar", RSA.Create(), HashAlgorithmName.SHA512, RSASignaturePadding.Pss).CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddHours(1));
             var signingCertificateKey = new X509SecurityKey(signingCertificate);
@@ -175,14 +180,14 @@ namespace PeasieAPI
                     IssuerSigningKeyResolver = (token, securityToken, kid, validationParameters) => signingKeys
                 };
             });
-            builder.Services.AddAuthorization(options => options.AddPolicy("IsAuthorized", policy => policy.Requirements.Add(new PeasieAuthorizationRequirement())));
+            builder.Services.AddAuthorization(options => options.AddPolicy("IsAuthorized", policy => policy.Requirements.Add(new PeasieAuthorizationRequirement(ApplicationContextService, DataManagerService))));
 
             // Add DB services.
             var serverVersion = new MySqlServerVersion(new Version(8, 0, 31));
             // Add DB services.
             builder.Services.AddDbContext<PeasieAPIDbContext>(options =>
                     options.UseMySql(connectionString, serverVersion)
-                    .UseLoggerFactory(LoggerFactory.Create(b => b.AddFilter(level => level >= LogLevel.Information)))
+                    .UseLoggerFactory(LoggerFactory.Create(b => b.AddFilter(level => level >= LogLevel.Debug)))
                     .EnableSensitiveDataLogging()
                     .EnableDetailedErrors()
                 );
@@ -196,8 +201,12 @@ namespace PeasieAPI
             builder.Services.AddResponseCompression();
             builder.Services.AddRequestDecompression();
 
+            // Is no longer added by default:
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
             // Add custom services to the container.
             builder.Services.AddSingleton<IPeasieApplicationContextService>(ApplicationContextService);
+            builder.Services.AddSingleton<IDataManagerService>(DataManagerService);
             builder.Services.AddScoped<IAuthorizationHandler, PeasieAuthorizationHandler>();
             builder.Services.AddScoped<PeasieEndpointHandler>();
 
@@ -214,6 +223,7 @@ namespace PeasieAPI
             var app = builder.Build();
 
             ApplicationContextService.Logger = app.Logger;
+            DataManagerService.Logger = app.Logger;
 
             // Map the endpoints.
             using (var scope = app.Services.CreateScope())
@@ -224,6 +234,7 @@ namespace PeasieAPI
             // Configure the HTTP request pipeline.
             app.UseResponseCompression();
             app.UseRequestDecompression();
+
             app.UseHsts();
             app.UseHttpsRedirection();
             app.MapHealthChecks("/Health");
@@ -234,6 +245,11 @@ namespace PeasieAPI
 
             app.UseIPWhitelist();
             app.UseRateLimiter();
+
+            app.Use((context, next) => {
+                context.Request.EnableBuffering(1000000);
+                return next();
+            });
 
             if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
             {
@@ -265,6 +281,7 @@ namespace PeasieAPI
 
         public static IResult EveryMinute()
         {
+            DataManagerService?.Recycle();
             return Results.Ok(null);
         }
     }

@@ -57,7 +57,7 @@ namespace BeneficiaryAPI.Handlers
                 // Decrypt using session public key
                 applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::PaymentTrxUpdate");
                 return Results.Ok();           
-            });
+            }).RequireAuthorization("IsAuthorized"); ;
 
             // PAYMENT ==============================================================
 
@@ -68,7 +68,7 @@ namespace BeneficiaryAPI.Handlers
                     return Results.BadRequest();
                 applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::PaymentRequest");
                 return Results.Ok();
-            });
+            }).RequireAuthorization("IsAuthorized");
 
             // ADMIN =================================================================
 

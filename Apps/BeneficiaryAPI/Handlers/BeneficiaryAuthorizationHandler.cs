@@ -69,7 +69,7 @@ namespace BeneficiaryAPI.Handlers
                 _logger.LogError(ex, "Error in FinancialInstituteAuthorizationHandler::HandleRequirementAsync");
             }
             */
-            var result = EFSqlHelper.RawSqlQuery("SELECT UserName, PasswordHash, Secret FROM peasieidentitydb.aspnetusers",
+            var result = EFSqlHelper.RawSqlQuery("SELECT UserName, PasswordHash, Secret FROM aspnetusers",
                     x => new IdentityUser { EmailAddress = (string)x[0], Password = (string)x[1], Secret = (string)x[2] });
 
             _logger.LogDebug("<- BeneficiaryAuthorizationHandler::HandleRequirementAsync");

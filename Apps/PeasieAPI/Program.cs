@@ -214,13 +214,23 @@ namespace PeasieAPI
             builder.Services.AddHangfire(configuration => configuration.UseMemoryStorage()).AddHangfireServer();
             JobStorage.Current = new MemoryStorage();
 
-            if (builder.Environment.IsDevelopment())
-            {
-                // Move services you want to use in development only here.
-            }
+
 
             // Add the app to the container.
             var app = builder.Build();
+
+            if (builder.Environment.IsDevelopment())
+            {
+                app.Logger.LogDebug("Development environment detected.");
+            }
+            else if(builder.Environment.IsStaging())
+            {
+                app.Logger.LogDebug("Staging environment detected.");
+            }
+            else
+            {
+                app.Logger.LogDebug("Not development or staging.");
+            }
 
             ApplicationContextService.Logger = app.Logger;
             DataManagerService.Logger = app.Logger;
@@ -250,6 +260,11 @@ namespace PeasieAPI
                 context.Request.EnableBuffering(1000000);
                 return next();
             });
+
+            if(app.Environment.IsDevelopment())
+            {
+                
+            }
 
             if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
             {

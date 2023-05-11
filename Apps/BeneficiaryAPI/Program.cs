@@ -337,17 +337,33 @@ namespace BeneficiaryAPI
             }
             if (!ok)
             {
-                ApplicationContextService?.Logger?.LogDebug("BeneficiaryAPI::EveryMinute requesting token and session");
+                ApplicationContextService?.Logger?.LogDebug("EveryMinute requesting token and session");
                 // request authentication token
-                ApplicationContextService?.GetAuthenticationToken();
-                // request session
-                ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Secret = "MijnGeheim", Type = "SHOP", Designation = "Colruyt" });
+                var validToken = ApplicationContextService?.GetAuthenticationToken();
+                if (validToken != null && validToken == true)
+                {
+                    // request session
+                    var validSession = ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Secret = "MijnGeheim", Type = "SHOP", Designation = "Colruyt" });
+                    if (validSession != null && validSession == true)
+                        ok = true;
+                }
+                else
+                {
+                    ApplicationContextService?.Logger?.LogDebug("Cannot request session: not a valid authentication token");
+                }
             }
-            if(ApplicationContextService?.DemoMode == true)
+            if (ok)
             {
-                ApplicationContextService?.Logger?.LogDebug("DEMO mode: requesting payment");
+                if (ApplicationContextService?.DemoMode == true)
+                {
+                    ApplicationContextService?.Logger?.LogDebug("DEMO mode: requesting payment");
 
-                BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { Amount = 50, Currency = "EUR" });
+                    BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { Amount = 50, Currency = "EUR" });
+                }
+            }
+            else if(ApplicationContextService?.DemoMode == true)
+            {
+                ApplicationContextService?.Logger?.LogDebug("DEMO mode: cannot request a payment because of connection problems");
             }
             ApplicationContextService?.Logger?.LogDebug("<- BeneficiaryAPI::EveryMinute");
             return Results.Ok(null);

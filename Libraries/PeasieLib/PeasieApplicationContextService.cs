@@ -48,14 +48,15 @@ namespace PeasieLib
         #region Methods
         public bool GetAuthenticationToken()
         {
-            bool valid = true;
+            bool valid = false;
             // TODO: check secret in identity db
-            if (valid)
+            var url = PeasieUrl + "/token/generateEncryptedToken";
+            Logger?.LogTrace("Requesting authentication token...");
+            AuthenticationToken = url.GetStringAsync().Result;
+            Logger?.LogTrace("AuthenticationToken: {0}", AuthenticationToken);
+            if (AuthenticationToken != null && !string.IsNullOrEmpty(AuthenticationToken))
             {
-                var url = PeasieUrl + "/token/generateEncryptedToken";
-                Logger?.LogTrace("Requesting authentication token...");
-                AuthenticationToken = url.GetStringAsync().Result;
-                Logger?.LogTrace("AuthenticationToken: {0}", AuthenticationToken);
+                valid = true;
             }
             return valid;
         }
@@ -68,42 +69,43 @@ namespace PeasieLib
                 return false;
             }
 
-            bool valid = true;
+            bool valid = false;
             // TODO: check secret in identity db
-            if (valid)
+
+            // request session key
+            var rsa = TokenService.GeneratePPKRandomly(out string privateKey, out string publicKey);
+            var sessionRequest = new SessionRequestDTO
             {
-                // request session key
-                var rsa = TokenService.GeneratePPKRandomly(out string privateKey, out string publicKey);
-                var sessionRequest = new SessionRequestDTO
-                {
-                    PublicKey = publicKey
-                };
-                var url = PeasieUrl + "/session/request";
-                var reference = url.WithOAuthBearerToken(AuthenticationToken).PostJsonAsync(sessionRequest).Result;
-                var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
-                if (string.IsNullOrEmpty(reply.Payload))
-                    return false;
-                var decrypted = EncryptionService.DecryptUsingPrivateKey(reply.Payload, privateKey);
-                var sessionResponse = System.Text.Json.JsonSerializer.Deserialize<SessionResponseDTO>(decrypted);
+                PublicKey = publicKey
+            };
+            var url = PeasieUrl + "/session/request";
+            var reference = url.WithOAuthBearerToken(AuthenticationToken).PostJsonAsync(sessionRequest).Result;
+            var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
+            if (string.IsNullOrEmpty(reply.Payload))
+                return false;
+            var decrypted = EncryptionService.DecryptUsingPrivateKey(reply.Payload, privateKey);
+            var sessionResponse = System.Text.Json.JsonSerializer.Deserialize<SessionResponseDTO>(decrypted);
 
-                // remember
-                var wrapper = new SessionRequestDTOWrapper { SessionRequest = sessionRequest, SessionResponse = sessionResponse, RSA = rsa, PrivateKey = privateKey, PublicKey = publicKey };
-                Session = wrapper;
+            // remember
+            var wrapper = new SessionRequestDTOWrapper { SessionRequest = sessionRequest, SessionResponse = sessionResponse, RSA = rsa, PrivateKey = privateKey, PublicKey = publicKey };
+            Session = wrapper;
 
-                if (Session == null || Session.SessionResponse == null)
-                    return false;
+            if (Session == null || Session.SessionResponse == null)
+                return false;
 
-                // send session details
-                var sessionDetailsDTO = new SessionDetailsDTO() { Guid = Session.SessionResponse.SessionGuid, User = userDTO, Issuer = Issuer, Audience = Audience, WebHook = WebHook, JWTAuthorizationToken = AuthenticationToken };
-                var json = JsonSerializer.Serialize<SessionDetailsDTO>(sessionDetailsDTO);
-                var encrypted = EncryptionService.EncryptUsingPublicKey(json, Session.SessionResponse.PublicKey);
-                var peasieRequestDTO = new PeasieRequestDTO { Id = Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
-                url = PeasieUrl + "/session/details";
-                reference = url.WithOAuthBearerToken(AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
+            // send session details
+            var sessionDetailsDTO = new SessionDetailsDTO() { Guid = Session.SessionResponse.SessionGuid, User = userDTO, Issuer = Issuer, Audience = Audience, WebHook = WebHook, JWTAuthorizationToken = AuthenticationToken };
+            var json = JsonSerializer.Serialize<SessionDetailsDTO>(sessionDetailsDTO);
+            var encrypted = EncryptionService.EncryptUsingPublicKey(json, Session.SessionResponse.PublicKey);
+            var peasieRequestDTO = new PeasieRequestDTO { Id = Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
+            url = PeasieUrl + "/session/details";
+            reference = url.WithOAuthBearerToken(AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
 
-                // remember
-                Session.SessionDetails = sessionDetailsDTO;
-            }
+            // remember
+            Session.SessionDetails = sessionDetailsDTO;
+
+            valid = true;
+
             return valid;
         }
 

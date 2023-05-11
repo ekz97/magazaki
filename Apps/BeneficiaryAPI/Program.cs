@@ -301,10 +301,20 @@ namespace BeneficiaryAPI
         {
             ApplicationContextService?.Logger?.LogDebug("-> BeneficiaryAPI::EveryMinute");
             var ok = true;
-            if (ApplicationContextService?.AuthenticationToken == null || ApplicationContextService.Session == null)
-                ok = false;
-            else
+            if (ApplicationContextService?.AuthenticationToken == null)
             {
+                ApplicationContextService?.Logger?.LogDebug("Authentication token not valid");
+                ok = false;
+            }
+            if (ApplicationContextService?.Session == null)
+            {
+                ApplicationContextService?.Logger?.LogDebug("Session not available");
+                ok = false;
+            }
+            if(ok == true)
+            {
+                ApplicationContextService?.Logger?.LogDebug("Verifying authentication token and session");
+
                 var sessionVerificationDTO = new SessionVerificationRequestDTO();
                 var json = JsonSerializer.Serialize<SessionVerificationRequestDTO>(sessionVerificationDTO);
                 var encrypted = EncryptionService.EncryptUsingPublicKey(json, ApplicationContextService?.Session?.SessionResponse?.PublicKey);
@@ -317,7 +327,8 @@ namespace BeneficiaryAPI
                     {
                         ok = false;
                     }
-                } catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     ApplicationContextService.AuthenticationToken = null;
                     ApplicationContextService.Session = null;
@@ -332,8 +343,10 @@ namespace BeneficiaryAPI
                 // request session
                 ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Secret = "MijnGeheim", Type = "SHOP", Designation = "Colruyt" });
             }
-            else if(ApplicationContextService?.DemoMode == true)
+            if(ApplicationContextService?.DemoMode == true)
             {
+                ApplicationContextService?.Logger?.LogDebug("DEMO mode: requesting payment");
+
                 BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { Amount = 50, Currency = "EUR" });
             }
             ApplicationContextService?.Logger?.LogDebug("<- BeneficiaryAPI::EveryMinute");

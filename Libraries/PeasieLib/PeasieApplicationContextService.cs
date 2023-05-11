@@ -1,5 +1,4 @@
 ﻿using Flurl.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Peasie.Contracts;
@@ -54,13 +53,21 @@ namespace PeasieLib
             if (valid)
             {
                 var url = PeasieUrl + "/token/generateEncryptedToken";
+                Logger?.LogTrace("Requesting authentication token...");
                 AuthenticationToken = url.GetStringAsync().Result;
+                Logger?.LogTrace("AuthenticationToken: {0}", AuthenticationToken);
             }
             return valid;
         }
 
         public bool GetSession(UserDTO userDTO)
         {
+            if (AuthenticationToken == null)
+            {
+                Logger?.LogError("Cannot request session: no authentication token");
+                return false;
+            }
+
             bool valid = true;
             // TODO: check secret in identity db
             if (valid)

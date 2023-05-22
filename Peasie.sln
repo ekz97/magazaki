@@ -22,6 +22,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF3C2127-4259-4707-8D01-4344F0FAF9CC}"
 	ProjectSection(SolutionItems) = preProject
 		Introduction.md = Introduction.md
+		vic.txt = vic.txt
 	EndProjectSection
 EndProject
 Global

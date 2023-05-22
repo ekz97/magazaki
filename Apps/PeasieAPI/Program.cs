@@ -25,6 +25,7 @@ using PeasieLib.Extensions;
 using System.IdentityModel.Tokens.Jwt;
 using PeasieAPI.Services.Interfaces;
 using PeasieAPI.Services;
+using LettuceEncrypt;
 
 // TODO
 // Header protection
@@ -127,8 +128,8 @@ namespace PeasieAPI
             IdentityModelEventSource.ShowPII = true; // NOT GDPR safe!
 
             // Add API services to the container.
-            builder.Services.AddLettuceEncrypt();
-
+            ILettuceEncryptServiceBuilder encryptBuilder = builder.Services.AddLettuceEncrypt();
+            encryptBuilder.PersistDataToDirectory(new DirectoryInfo("/tmp/LettuceEncrypt/"), "Password123");
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {

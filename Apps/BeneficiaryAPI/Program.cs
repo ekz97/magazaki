@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading.RateLimiting;
 using PeasieLib.Extensions;
 using System.IdentityModel.Tokens.Jwt;
+using LettuceEncrypt;
 
 namespace BeneficiaryAPI
 {
@@ -131,7 +132,8 @@ namespace BeneficiaryAPI
 
             // Add API services to the container.
             // ----------------------------------
-            builder.Services.AddLettuceEncrypt();
+            ILettuceEncryptServiceBuilder encryptBuilder = builder.Services.AddLettuceEncrypt();
+            encryptBuilder.PersistDataToDirectory(new DirectoryInfo("/tmp/LettuceEncrypt/"), "Password123");
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {

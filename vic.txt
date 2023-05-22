@@ -1,0 +1,3 @@
+dotnet tool install --global dotnet-ef
+export PATH="$PATH:$HOME/.dotnet/tools/"
+dotnet ef database update

@@ -142,6 +142,7 @@ namespace FinancialInstituteAPI
 
             // Add API services to the container.
             // ----------------------------------
+            builder.Services.AddLettuceEncrypt();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {

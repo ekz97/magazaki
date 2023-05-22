@@ -127,6 +127,8 @@ namespace PeasieAPI
             IdentityModelEventSource.ShowPII = true; // NOT GDPR safe!
 
             // Add API services to the container.
+            builder.Services.AddLettuceEncrypt();
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -214,8 +216,6 @@ namespace PeasieAPI
             builder.Services.AddHangfire(configuration => configuration.UseMemoryStorage()).AddHangfireServer();
             JobStorage.Current = new MemoryStorage();
 
-
-
             // Add the app to the container.
             var app = builder.Build();
 
@@ -260,11 +260,6 @@ namespace PeasieAPI
                 context.Request.EnableBuffering(1000000);
                 return next();
             });
-
-            if(app.Environment.IsDevelopment())
-            {
-                
-            }
 
             if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
             {

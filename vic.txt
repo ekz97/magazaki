@@ -2,3 +2,8 @@ dotnet tool install --global dotnet-ef
 export PATH="$PATH:$HOME/.dotnet/tools/"
 # in Apps/Peasie.Identity.App:
 dotnet ef database update --context ApplicationDbContext
+# mapped locally through Visual Studio Code from vic while running from Code terminals:
+# urls to monitor:
+# https://localhost:7192/admin
+# https://localhost:7089/admin
+# https://localhost:7126/admin

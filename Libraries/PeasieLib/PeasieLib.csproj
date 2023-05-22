@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LettuceEncryptForReal\LettuceEncryptForReal.csproj" />
     <ProjectReference Include="..\Peasie.Contracts\Peasie.Contracts.csproj" />
   </ItemGroup>
 

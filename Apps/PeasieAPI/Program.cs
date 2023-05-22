@@ -254,6 +254,7 @@ namespace PeasieAPI
                 Authorization = new[] { new HangfireAuthorizationFilter() }
             });
 
+            app.UseHttpChallengeResponseMiddleware();
             app.UseIPWhitelist();
             app.UseRateLimiter();
 

@@ -147,6 +147,8 @@ RateLimitPartition.GetFixedWindowLimiter(httpContext.ResolveClientIpAddress(), p
         var app = builder.Build();
 
         app.MapHealthChecks("/Health");
+
+        app.UseHttpChallengeResponseMiddleware();
         app.UseRateLimiter();
         app.UseIPWhitelist();
 

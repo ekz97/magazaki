@@ -9,7 +9,7 @@ namespace Microsoft.AspNetCore.Builder
     /// <summary>
     /// Helper methods
     /// </summary>
-    internal static class LettuceEncryptApplicationBuilderExtensions
+    public static class LettuceEncryptApplicationBuilderExtensions
     {
         /// <summary>
         /// Adds middleware use to verify domain ownership.

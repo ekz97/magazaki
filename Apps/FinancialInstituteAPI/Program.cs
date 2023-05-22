@@ -259,6 +259,8 @@ namespace FinancialInstituteAPI
             app.UseHttpsRedirection();
 
             app.MapHealthChecks("/Health");
+
+            app.UseHttpChallengeResponseMiddleware();
             app.UseRateLimiter();
             app.UseIPWhitelist();
 

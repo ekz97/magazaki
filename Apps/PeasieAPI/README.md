@@ -5,7 +5,7 @@ Overzicht poorten:
 . BeneficiaryAPI: https://10.10.10.10:7089 (Web API)
 . FinancialInstituteAPI: https://10.10.10.10:7126 (Web API)
 . Peasie.Identity.App: https://10.10.10.10:7198 (Razor application)
-. PeasieAPI: https://10.10.10.10:7192 (Web API)
+. PeasieAPI: https://10.10.10.10:40077 (Web API)
 
 https://hogent-demo.fortiddns.com:44443/
 

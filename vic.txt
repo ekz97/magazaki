@@ -4,6 +4,24 @@ export PATH="$PATH:$HOME/.dotnet/tools/"
 dotnet ef database update --context ApplicationDbContext
 # mapped locally through Visual Studio Code from vic while running from Code terminals:
 # urls to monitor:
-# https://localhost:7192/admin
+# https://localhost:40077/admin
 # https://localhost:7089/admin
 # https://localhost:7126/admin
+
+
+* VM (medium) (1 vCPU, 2 GB RAM, 16 GB SSD)
+* OS: Ubuntu Server
+* User: vicuser
+* Portmapping:
+    * vichogent.be:40070/tcp -> localhost:22/tcp
+    * vichogent.be:40071/tcp -> localhost:3306/tcp => MySQL
+    * vichogent.be:40072/tcp -> localhost:3000/tcp
+    * vichogent.be:40073/tcp -> localhost:3001/tcp
+    * vichogent.be:40074/tcp -> localhost:3002/tcp
+    * vichogent.be:40075/tcp -> localhost:3003/tcp
+    * vichogent.be:40076/tcp -> localhost:3004/tcp
+    * vichogent.be:40077/tcp -> localhost:3005/tcp => PeasieAPI
+
+* Domain:
+
+    * https://pg.vichogent.be -> localhost:443/tcp

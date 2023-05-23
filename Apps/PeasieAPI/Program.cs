@@ -109,6 +109,7 @@ namespace PeasieAPI
                     );
             });
 
+            /*
             // Terminating TLS at a reverse proxy part 1
             builder.Services.Configure<ForwardedHeadersOptions>(options =>
             {
@@ -117,6 +118,7 @@ namespace PeasieAPI
                 options.KnownNetworks.Clear();
                 options.KnownProxies.Clear();
             });
+            */
 
             builder.Services.Configure<IPWhitelistOptions>(builder.Configuration.GetSection("IPWhitelistOptions"));
 
@@ -252,8 +254,10 @@ namespace PeasieAPI
                 scope.ServiceProvider.GetService<PeasieEndpointHandler>()?.RegisterAPIs(app, symmetricKey, signingCertificateKey, encryptingCertificateKey);
             }
 
+            /*
             // forwarded headers from a reverse proxy, part 2:
             app.UseForwardedHeaders();
+            */
 
             // Configure the HTTP request pipeline.
             app.UseResponseCompression();

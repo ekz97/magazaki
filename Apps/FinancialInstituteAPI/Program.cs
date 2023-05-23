@@ -257,7 +257,7 @@ namespace FinancialInstituteAPI
             app.UseResponseCompression();
             app.UseRequestDecompression();
             //app.UseHsts();
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.MapHealthChecks("/Health");
 

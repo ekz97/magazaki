@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Peasie.Web;
@@ -148,7 +147,6 @@ RateLimitPartition.GetFixedWindowLimiter(httpContext.ResolveClientIpAddress(), p
 
         app.MapHealthChecks("/Health");
 
-        app.UseHttpChallengeResponseMiddleware();
         app.UseRateLimiter();
         app.UseIPWhitelist();
 

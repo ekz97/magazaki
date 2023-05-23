@@ -263,8 +263,9 @@ namespace PeasieAPI
             app.UseResponseCompression();
             app.UseRequestDecompression();
 
-            app.UseHsts();
-            app.UseHttpsRedirection();
+            //app.UseHsts();
+            //app.UseHttpsRedirection();
+
             app.MapHealthChecks("/Health");
             app.UseHangfireDashboard("/Hangfire/Dashboard", new DashboardOptions
             {

@@ -9,8 +9,6 @@ namespace PeasieLib.Handlers;
 
 public class PeasieEndpointHandler
 {
-    // private readonly string _basicFinancialInstituteUrl = "https://localhost:7126";
-
     public void RegisterAPIs(WebApplication app,
         SymmetricSecurityKey key, X509SecurityKey signingCertificateKey, X509SecurityKey encryptingCertificateKey)
     {
@@ -217,7 +215,7 @@ public class PeasieEndpointHandler
 
             if (string.IsNullOrEmpty(decrypted) || paymentRequest == null || string.IsNullOrEmpty(paymentRequest.BeneficiaryPublicKey))
             {
-                applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentRequest");
+                applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentRequest (decryption problem)");
                 return Results.BadRequest();
             }
 
@@ -239,12 +237,17 @@ public class PeasieEndpointHandler
             };
 
             var url = applicationContextService?.FinancialInstituteUrl + "/payment/request";
-            var reference = url.WithOAuthBearerToken(bankSession.SessionDetails.JWTAuthorizationToken).PostJsonAsync(bankPeasieRequestDTO).Result;
+            applicationContextService?.Logger.LogDebug($"Constructed url: {url}");
+            var reference = url.WithOAuthBearerToken(bankSession.SessionDetails?.JWTAuthorizationToken).PostJsonAsync(bankPeasieRequestDTO).Result;
 
             var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
 
             if (string.IsNullOrEmpty(reply.Payload))
+            {
+                applicationContextService?.Logger.LogError("No reply from BANK");
+                applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentRequest");
                 return Results.BadRequest();
+            }
 
             // Unpack and pack
             var bankReplyDecrypted = EncryptionService.DecryptUsingPrivateKey(reply.Payload, bankSession.PrivateKey);

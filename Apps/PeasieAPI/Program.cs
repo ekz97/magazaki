@@ -25,6 +25,7 @@ using PeasieLib.Extensions;
 using System.IdentityModel.Tokens.Jwt;
 using PeasieAPI.Services.Interfaces;
 using PeasieAPI.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 //using LettuceEncrypt;
 
 // TODO
@@ -106,6 +107,15 @@ namespace PeasieAPI
                             Window = TimeSpan.FromSeconds(1)
                         }))
                     );
+            });
+
+            // Terminating TLS at a reverse proxy part 1
+            builder.Services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
             });
 
             builder.Services.Configure<IPWhitelistOptions>(builder.Configuration.GetSection("IPWhitelistOptions"));
@@ -241,6 +251,9 @@ namespace PeasieAPI
             {
                 scope.ServiceProvider.GetService<PeasieEndpointHandler>()?.RegisterAPIs(app, symmetricKey, signingCertificateKey, encryptingCertificateKey);
             }
+
+            // forwarded headers from a reverse proxy, part 2:
+            app.UseForwardedHeaders();
 
             // Configure the HTTP request pipeline.
             app.UseResponseCompression();

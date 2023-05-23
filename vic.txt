@@ -41,7 +41,7 @@ ufw allow 3004/tcp
 ufw allow 3005/tcp
 
 https://www.scottbrady91.com/openssl/creating-rsa-keys-using-openssl
-        
-            
+https://dev.to/___bn___/free-certified-ssl-certificate-in-asp-net-5-kestrel-application-kgn        
+    https://pradeepl.com/blog/https-in-asp-net-core/        
                 
                 

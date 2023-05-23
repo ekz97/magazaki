@@ -222,6 +222,7 @@ namespace BeneficiaryAPI
 
             // Add custom services to the container.
             // -------------------------------------
+            builder.Services.AddHostedService<StartupHostedService>();
             builder.Services.AddSingleton<IPeasieApplicationContextService>(ApplicationContextService);
             builder.Services.AddScoped<IAuthorizationHandler, BeneficiaryAuthorizationHandler>();
             builder.Services.AddScoped<BeneficiaryEndpointHandler>();

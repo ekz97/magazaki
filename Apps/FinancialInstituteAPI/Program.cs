@@ -223,6 +223,7 @@ namespace FinancialInstituteAPI
 
             // Add custom services to the container.
             // -------------------------------------
+            builder.Services.AddHostedService<StartupHostedService>();
             builder.Services.AddSingleton<IPeasieApplicationContextService>(ApplicationContextService);
             builder.Services.AddSingleton<IPaymentTransactionService>(financialTransactionProcessorService);
             builder.Services.AddScoped<IAuthorizationHandler, FinancialInstituteAuthorizationHandler>();

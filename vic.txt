@@ -1,4 +1,5 @@
 dotnet tool install --global dotnet-ef
+dotnet tool install --global certes
 export PATH="$PATH:$HOME/.dotnet/tools/"
 # in Apps/Peasie.Identity.App:
 dotnet ef database update --context ApplicationDbContext
@@ -13,15 +14,34 @@ dotnet ef database update --context ApplicationDbContext
 * OS: Ubuntu Server
 * User: vicuser
 * Portmapping:
-    * vichogent.be:40070/tcp -> localhost:22/tcp
-    * vichogent.be:40071/tcp -> localhost:3306/tcp => MySQL
+    * vichogent.be:40070/tcp -> localhost:22/tcp => SSH
     * vichogent.be:40072/tcp -> localhost:3000/tcp
     * vichogent.be:40073/tcp -> localhost:3001/tcp
     * vichogent.be:40074/tcp -> localhost:3002/tcp
     * vichogent.be:40075/tcp -> localhost:3003/tcp
     * vichogent.be:40076/tcp -> localhost:3004/tcp
     * vichogent.be:40077/tcp -> localhost:3005/tcp => PeasieAPI
+    * vichogent.be:40071/tcp -> localhost:3306/tcp => MySQL
 
 * Domain:
 
     * https://pg.vichogent.be -> localhost:443/tcp
+
+ufw enable
+ufw status verbose
+ufw allow ssh
+ufw allow http
+ufw allow https
+ufw allow 3306/tcp
+ufw allow 3000/tcp
+ufw allow 3001/tcp
+ufw allow 3002/tcp
+ufw allow 3003/tcp
+ufw allow 3004/tcp
+ufw allow 3005/tcp
+
+    
+        
+            
+                
+                

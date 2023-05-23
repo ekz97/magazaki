@@ -52,11 +52,18 @@ namespace PeasieLib
             // TODO: check secret in identity db
             var url = PeasieUrl + "/token/generateEncryptedToken";
             Logger?.LogTrace("Requesting authentication token...");
-            AuthenticationToken = url.GetStringAsync().Result;
-            Logger?.LogTrace("AuthenticationToken: {0}", AuthenticationToken);
-            if (AuthenticationToken != null && !string.IsNullOrEmpty(AuthenticationToken))
+            try
             {
-                valid = true;
+                AuthenticationToken = url.GetStringAsync().Result;
+                Logger?.LogTrace("AuthenticationToken: {0}", AuthenticationToken);
+                if (AuthenticationToken != null && !string.IsNullOrEmpty(AuthenticationToken))
+                {
+                    valid = true;
+                }
+            }catch( Exception ex )
+            {
+                Logger?.LogError("Cannot get authentication token", ex);
+                valid = false;
             }
             return valid;
         }

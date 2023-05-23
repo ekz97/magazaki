@@ -27,7 +27,7 @@ using PeasieLib.Extensions;
 using System.IdentityModel.Tokens.Jwt;
 using FinancialInstituteAPI.Interfaces;
 using FinancialInstituteAPI.Services;
-using LettuceEncrypt;
+//using LettuceEncrypt;
 
 namespace FinancialInstituteAPI
 {
@@ -143,8 +143,8 @@ namespace FinancialInstituteAPI
 
             // Add API services to the container.
             // ----------------------------------
-            ILettuceEncryptServiceBuilder encryptBuilder = builder.Services.AddLettuceEncrypt();
-            encryptBuilder.PersistDataToDirectory(new DirectoryInfo("/tmp/LettuceEncrypt/"), "Password123");
+            //ILettuceEncryptServiceBuilder encryptBuilder = builder.Services.AddLettuceEncrypt();
+            //encryptBuilder.PersistDataToDirectory(new DirectoryInfo("/tmp/LettuceEncrypt/"), "Password123");
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -261,7 +261,7 @@ namespace FinancialInstituteAPI
 
             app.MapHealthChecks("/Health");
 
-            app.UseHttpChallengeResponseMiddleware();
+            //app.UseHttpChallengeResponseMiddleware();
             app.UseRateLimiter();
             app.UseIPWhitelist();
 

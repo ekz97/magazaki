@@ -40,7 +40,7 @@ ufw allow 3003/tcp
 ufw allow 3004/tcp
 ufw allow 3005/tcp
 
-    
+https://www.scottbrady91.com/openssl/creating-rsa-keys-using-openssl
         
             
                 

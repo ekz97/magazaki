@@ -16,7 +16,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://10.11.0.44:3005;http://10.11.0.44:5192",
+      "applicationUrl": "https://10.11.0.44:443;http://10.11.0.44:5192",
       "dotnetRunMessages": true
     },
     "Staging": {

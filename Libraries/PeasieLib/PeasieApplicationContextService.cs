@@ -19,6 +19,7 @@ namespace PeasieLib
         public ILogger? Logger { get; set; }
         public string? ConnectionString { get; set; }
         public string? PeasieUrl { get; set; }
+        public string? FinancialInstituteUrl { get; set; }
         public SessionRequestDTOWrapper? Session { get; set; }
         public string? AuthenticationToken { get; set; }
         public string? Issuer { get; set; }

@@ -10,6 +10,7 @@ namespace PeasieLib.Interfaces
         #region Properties
         public ILogger Logger { get; }
         public string? PeasieUrl { get; set; }
+        public string? FinancialInstituteUrl { get; set; }
         public SessionRequestDTOWrapper? Session { get; set; }
         public string? AuthenticationToken { get; set; }
         public string? Issuer { get; set; }

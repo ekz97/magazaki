@@ -130,6 +130,7 @@ namespace PeasieAPI
             var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!));
             ApplicationContextService.Audience = builder.Configuration["Jwt:Audience"]!;
             ApplicationContextService.Issuer = builder.Configuration["Jwt:Issuer"]!;
+            ApplicationContextService.FinancialInstituteUrl = builder.Configuration["FinancialInstituteUrl"]!;
             ApplicationContextService.Lifetime = new TimeSpan(0, 0, 30); // 30 seconds
             var signingCertificate = new CertificateRequest("cn=foobar", RSA.Create(), HashAlgorithmName.SHA512, RSASignaturePadding.Pss).CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddHours(1));
             var encryptingCertificate = new CertificateRequest("cn=foobar", RSA.Create(), HashAlgorithmName.SHA512, RSASignaturePadding.Pss).CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddHours(1));

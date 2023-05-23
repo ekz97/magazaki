@@ -9,7 +9,7 @@ namespace PeasieLib.Handlers;
 
 public class PeasieEndpointHandler
 {
-    private readonly string _basicFinancialInstituteUrl = "https://localhost:7126";
+    // private readonly string _basicFinancialInstituteUrl = "https://localhost:7126";
 
     public void RegisterAPIs(WebApplication app,
         SymmetricSecurityKey key, X509SecurityKey signingCertificateKey, X509SecurityKey encryptingCertificateKey)
@@ -238,7 +238,7 @@ public class PeasieEndpointHandler
                 Payload = EncryptionService.EncryptUsingPublicKey(decrypted, bankSession.SessionRequest.PublicKey)
             };
 
-            var url = _basicFinancialInstituteUrl + "/payment/request";
+            var url = applicationContextService?.FinancialInstituteUrl + "/payment/request";
             var reference = url.WithOAuthBearerToken(bankSession.SessionDetails.JWTAuthorizationToken).PostJsonAsync(bankPeasieRequestDTO).Result;
 
             var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
@@ -298,7 +298,7 @@ public class PeasieEndpointHandler
 
             //_logger.LogDebug(sessionSymmetricPwdEnc.HexDump());
 
-            var url = _basicFinancialInstituteUrl + "/payment/trx";
+            var url = applicationContextService?.FinancialInstituteUrl + "/payment/trx";
             var reference = url.WithOAuthBearerToken(bankSession.SessionDetails.JWTAuthorizationToken).PostJsonAsync(newPeasieRequestDTO).Result;
 
             var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;

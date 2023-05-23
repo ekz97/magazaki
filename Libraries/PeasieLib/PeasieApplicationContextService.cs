@@ -62,7 +62,7 @@ namespace PeasieLib
                 }
             }catch( Exception ex )
             {
-                Logger?.LogError("Cannot get authentication token", ex);
+                Logger?.LogError($"Cannot get authentication token ({ex.Message})", ex);
                 valid = false;
             }
             return valid;

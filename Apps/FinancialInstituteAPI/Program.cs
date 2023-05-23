@@ -256,12 +256,11 @@ namespace FinancialInstituteAPI
             // ------------------------------------
             app.UseResponseCompression();
             app.UseRequestDecompression();
-            app.UseHsts();
+            //app.UseHsts();
             app.UseHttpsRedirection();
 
             app.MapHealthChecks("/Health");
 
-            //app.UseHttpChallengeResponseMiddleware();
             app.UseRateLimiter();
             app.UseIPWhitelist();
 
@@ -326,13 +325,16 @@ namespace FinancialInstituteAPI
                     ok = false;
                 }
             }
-            if(!ok)
+            if (!ok)
             {
                 ApplicationContextService?.Logger?.LogDebug("FinancialInstituteAPI::EveryMinute requesting token and session");
                 // request authentication token
-                ApplicationContextService?.GetAuthenticationToken();
-                // request session
-                ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "BANK", Designation = "KBC" });
+                var validToken = ApplicationContextService?.GetAuthenticationToken();
+                if (validToken != null && validToken == true)
+                {
+                    // request session
+                    ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "BANK", Designation = "KBC" });
+                }
             }
             return Results.Ok(null);
         }

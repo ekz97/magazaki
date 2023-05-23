@@ -10,6 +10,7 @@ namespace PeasieLib.Middleware
         private readonly RequestDelegate _next;
         private readonly IPWhitelistOptions _iPWhitelistOptions;
         private readonly ILogger<IPWhitelistMiddleware> _logger;
+
         public IPWhitelistMiddleware(RequestDelegate next,
         ILogger<IPWhitelistMiddleware> logger,
             IOptions<IPWhitelistOptions> applicationOptionsAccessor)
@@ -21,6 +22,7 @@ namespace PeasieLib.Middleware
 
         public async Task Invoke(HttpContext context)
         {
+            _logger?.LogDebug("-> IPWhitelistMiddleware");
             //if (context.Request.Method != HttpMethod.Get.Method)
             {
                 var ipAddress = context.Connection.RemoteIpAddress;
@@ -33,14 +35,14 @@ namespace PeasieLib.Middleware
                 {
                     if ((bool)!isIPWhitelisted)
                     {
-                        _logger.LogWarning(
-                            "Request from Remote IP address: {RemoteIp} is forbidden.", ipAddress);
-                            context.Response.StatusCode =
-                            (int)HttpStatusCode.Forbidden;
+                        _logger.LogWarning("Request from Remote IP address: {RemoteIp} is forbidden.", ipAddress); 
+                        context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                        _logger?.LogDebug("<- IPWhitelistMiddleware");
                         return;
                     }
                 }
             }
+            _logger?.LogDebug("<- IPWhitelistMiddleware");
             await _next.Invoke(context);
         }
     }

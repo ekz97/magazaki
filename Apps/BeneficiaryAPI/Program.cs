@@ -253,7 +253,7 @@ namespace BeneficiaryAPI
             // ------------------------------------
             app.UseResponseCompression();
             app.UseRequestDecompression();
-            app.UseHsts();
+            //app.UseHsts();
             app.UseHttpsRedirection();
 
             app.MapHealthChecks("/Health");

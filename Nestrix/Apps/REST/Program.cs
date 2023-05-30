@@ -292,9 +292,9 @@ namespace RESTLayer
             // ------------------------------------
             app.UseResponseCompression();
             app.UseRequestDecompression();
-            app.UseHsts();
-            app.UseHttpsRedirection();
-            app.Urls.Add("http://localhost:5296");
+            //app.UseHsts();
+            //app.UseHttpsRedirection();
+            //app.Urls.Add("http://localhost:5296");
             app.MapControllers();
 
             app.MapHealthChecks("/Health");

@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text;
 using dotenv.net;
 using LogicLayer.Model;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace SecurityLayer;

@@ -24,16 +24,41 @@ using RESTLayer.Context;
 using SecurityLayer;
 using Serilog;
 using Hangfire;
-using Hangfire.MemoryStorage;
 using Hangfire.Common;
 using Flurl.Http;
 using Peasie.Contracts;
 using System.Text.Json;
 using PeasieLib.Services;
 using BankingRestAPI.Authorization;
+using Hangfire.MemoryStorage;
 
 namespace RESTLayer
 {
+    public class StartupHostedService : IHostedService
+    {
+        private readonly ILogger<StartupHostedService> _logger;
+
+        public StartupHostedService(ILogger<StartupHostedService> logger)
+        {
+            _logger = logger;
+        }
+
+        public async Task StartAsync(CancellationToken stoppingToken)
+        {
+            _logger?.LogDebug("-> StartupHostedService::StartAsync");
+            // The code in here will run when the application starts, and block the startup process until finished
+            Program.EveryMinute();
+            _logger?.LogDebug("<- StartupHostedService::StartAsync");
+        }
+
+        public Task StopAsync(CancellationToken stoppingToken)
+        {
+            // The code in here will run when the application stops
+            // In your case, nothing to do
+            return Task.CompletedTask;
+        }
+    }
+
     public class Program
     {
         private static PeasieApplicationContextService? ApplicationContextService;
@@ -46,27 +71,7 @@ namespace RESTLayer
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddSingleton<IGebruikerRepository>(r =>
-                new GebruikerRepository(r.GetRequiredService<IConfiguration>()
-                    .GetConnectionString("PeasieAPIDB")));
-            builder.Services.AddSingleton<IBankRepository>(r =>
-                new BankRepository(r.GetRequiredService<IConfiguration>().GetConnectionString("PeasieAPIDB")));
-            builder.Services.AddSingleton<IRekeningRepository>(r =>
-                new RekeningRepository(r.GetRequiredService<IConfiguration>()
-                    .GetConnectionString("PeasieAPIDB")));
-            builder.Services.AddSingleton<ITransactieRepository>(r =>
-                new TransactieRepository(
-                    r.GetRequiredService<IConfiguration>().GetConnectionString("PeasieAPIDB")));
-            builder.Services.AddSingleton<IAdresRepository>(r =>
-                new AdresRepository(r.GetRequiredService<IConfiguration>().GetConnectionString("PeasieAPIDB")));
-            builder.Services.AddSingleton<GebruikerManager>();
-            builder.Services.AddSingleton<BankManager>();
-            builder.Services.AddSingleton<TransactieManager>();
-            builder.Services.AddSingleton<RekeningManager>();
-            builder.Services.AddSingleton<AdresManager>();
-            builder.Services.AddSingleton<UserService>();
-            builder.Services.AddSingleton<JwtAuthenticationService>();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
             // Add configurations to the container.
             // ------------------------------------
@@ -86,6 +91,24 @@ namespace RESTLayer
                 .Enrich.FromLogContext()
                 .Enrich.WithProperty("Version", "1.0.0")
                 .ReadFrom.Configuration(ctx.Configuration));
+
+            builder.Services.AddHostedService<StartupHostedService>();
+            var cs = builder.Configuration.GetConnectionString("PeasieAPIDB");
+            if (string.IsNullOrEmpty(cs))
+                return;
+
+            builder.Services.AddSingleton<IGebruikerRepository>(r => new GebruikerRepository(cs));
+            builder.Services.AddSingleton<IBankRepository>(r => new BankRepository(cs));
+            builder.Services.AddSingleton<IRekeningRepository>(r => new RekeningRepository(cs));
+            builder.Services.AddSingleton<ITransactieRepository>(r => new TransactieRepository(cs));
+            builder.Services.AddSingleton<IAdresRepository>(r => new AdresRepository(cs));
+            builder.Services.AddSingleton<GebruikerManager>();
+            builder.Services.AddSingleton<BankManager>();
+            builder.Services.AddSingleton<TransactieManager>();
+            builder.Services.AddSingleton<RekeningManager>();
+            builder.Services.AddSingleton<AdresManager>();
+            builder.Services.AddSingleton<UserService>();
+            builder.Services.AddSingleton<JwtAuthenticationService>();
 
             #region health checks
 
@@ -297,7 +320,6 @@ namespace RESTLayer
             app.UseRequestDecompression();
             app.UseHsts();
             app.UseHttpsRedirection();
-            app.UseLogger();
             app.Urls.Add("http://localhost:5296");
             app.MapControllers();
 
@@ -370,9 +392,12 @@ namespace RESTLayer
             {
                 ApplicationContextService?.Logger?.LogDebug("FinancialInstituteAPI::EveryMinute requesting token and session");
                 // request authentication token
-                ApplicationContextService?.GetAuthenticationToken();
-                // request session
-                ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "BANK", Designation = "KBC" });
+                var validToken = ApplicationContextService?.GetAuthenticationToken();
+                if (validToken != null && validToken == true)
+                {
+                    // request session
+                    ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "BANK", Designation = "KBC" });
+                }
             }
             return Results.Ok(null);
         }

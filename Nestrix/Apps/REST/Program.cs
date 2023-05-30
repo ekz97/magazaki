@@ -34,30 +34,6 @@ using Hangfire.MemoryStorage;
 
 namespace RESTLayer
 {
-    public class StartupHostedService : IHostedService
-    {
-        private readonly ILogger<StartupHostedService> _logger;
-
-        public StartupHostedService(ILogger<StartupHostedService> logger)
-        {
-            _logger = logger;
-        }
-
-        public async Task StartAsync(CancellationToken stoppingToken)
-        {
-            _logger?.LogDebug("-> StartupHostedService::StartAsync");
-            // The code in here will run when the application starts, and block the startup process until finished
-            Program.EveryMinute();
-            _logger?.LogDebug("<- StartupHostedService::StartAsync");
-        }
-
-        public Task StopAsync(CancellationToken stoppingToken)
-        {
-            // The code in here will run when the application stops
-            // In your case, nothing to do
-            return Task.CompletedTask;
-        }
-    }
 
     public class Program
     {
@@ -93,15 +69,6 @@ namespace RESTLayer
                 .ReadFrom.Configuration(ctx.Configuration));
 
             builder.Services.AddHostedService<StartupHostedService>();
-            var cs = builder.Configuration.GetConnectionString("PeasieAPIDB");
-            if (string.IsNullOrEmpty(cs))
-                return;
-
-            builder.Services.AddSingleton<IGebruikerRepository>(r => new GebruikerRepository(cs));
-            builder.Services.AddSingleton<IBankRepository>(r => new BankRepository(cs));
-            builder.Services.AddSingleton<IRekeningRepository>(r => new RekeningRepository(cs));
-            builder.Services.AddSingleton<ITransactieRepository>(r => new TransactieRepository(cs));
-            builder.Services.AddSingleton<IAdresRepository>(r => new AdresRepository(cs));
             builder.Services.AddSingleton<GebruikerManager>();
             builder.Services.AddSingleton<BankManager>();
             builder.Services.AddSingleton<TransactieManager>();
@@ -184,6 +151,13 @@ namespace RESTLayer
             // Parameters.
             // -----------
             var connectionString = builder.Configuration.GetConnectionString("PeasieAPIDB") ?? "";
+
+            builder.Services.AddSingleton<IGebruikerRepository>(r => new GebruikerRepository(connectionString));
+            builder.Services.AddSingleton<IBankRepository>(r => new BankRepository(connectionString));
+            builder.Services.AddSingleton<IRekeningRepository>(r => new RekeningRepository(connectionString));
+            builder.Services.AddSingleton<ITransactieRepository>(r => new TransactieRepository(connectionString));
+            builder.Services.AddSingleton<IAdresRepository>(r => new AdresRepository(connectionString));
+
             var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!));
 
             ApplicationContextService.Issuer = builder.Configuration["Jwt:Issuer"]!;
@@ -361,6 +335,7 @@ namespace RESTLayer
             // ------------
             app.Run();
         }
+
         public static IResult EveryMinute()
         {
             var ok = true;

@@ -13,7 +13,7 @@
         {
             _logger?.LogDebug("-> StartupHostedService::StartAsync");
             // The code in here will run when the application starts, and block the startup process until finished
-            Program.EveryMinute();
+            // Program.EveryMinute();
             _logger?.LogDebug("<- StartupHostedService::StartAsync");
         }
 

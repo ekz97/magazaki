@@ -260,7 +260,7 @@ namespace RESTLayer
 
             // Next service must be constructed ...
             var paymentTransactionService = new PaymentTransactionService(ApplicationContextService);
-            builder.Services.AddSingleton<PaymentTransactionService>(paymentTransactionService);
+            builder.Services.AddSingleton<Interfaces.IPaymentTransactionService>(paymentTransactionService);
 
             builder.Services.AddScoped<IAuthorizationHandler, FinancialInstituteAuthorizationHandler>();
             builder.Services.AddScoped<FinancialInstituteEndpointHandler>();

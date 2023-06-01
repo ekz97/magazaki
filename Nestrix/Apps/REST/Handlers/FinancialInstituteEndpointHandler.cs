@@ -133,9 +133,18 @@ namespace RESTLayer.Handlers
                 applicationContextService?.Logger.LogDebug("About to call payment service...");
                 if (trx != null)
                 {
-                    applicationContextService?.Logger.LogDebug("Calling payment service...");
-                    trx = financialTransactionProcessor?.Process(trx);
-                    // trx.Status = "COMPLETED"; // TODO: adapt own history!!
+
+                    financialTransactionProcessor = app.Services.GetService(typeof(IPaymentTransactionService)) as IPaymentTransactionService;
+                    if (financialTransactionProcessor == null)
+                    {
+                        applicationContextService?.Logger.LogDebug("Payment service NOT AVAILABLE!");
+                    }
+                    else
+                    {
+                        applicationContextService?.Logger.LogDebug("Calling payment service...");
+                        trx = financialTransactionProcessor?.Process(trx);
+                        // trx.Status = "COMPLETED"; // TODO: adapt own history!!
+                    }
                 }
 
                 var jsonBank = JsonSerializer.Serialize<PaymentTransactionDTO>(trx);

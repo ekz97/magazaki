@@ -90,145 +90,154 @@ namespace WebshopApi.Infrastructure.Handlers
 
         public static bool MakePaymentRequest(IPeasieApplicationContextService? applicationContextService, PaymentTrxDTO paymentParameters)
         {
-            applicationContextService?.Logger.LogDebug("-> BeneficiaryEndpointHandler::MakePaymentRequest");
+            applicationContextService?.Logger?.LogDebug("-> BeneficiaryEndpointHandler::MakePaymentRequest");
 
             var valid = applicationContextService != null
                 && applicationContextService.AuthenticationToken != null
                 && applicationContextService.Session != null
+                && !string.IsNullOrEmpty(applicationContextService.Session.SessionDetails.User.Email)
                 && !string.IsNullOrEmpty(applicationContextService.Session.PrivateKey);
 
             if (valid)
             {
-                applicationContextService?.Logger.LogDebug("Requesting Payment SID...");
-                PaymentResponseDTO? paymentResponseDTO;
-                string? paymentRequestPrivateKeyBeneficiary;
+                try
                 {
-                    var rsaPaymentRequest = TokenService.GeneratePPKRandomly(out paymentRequestPrivateKeyBeneficiary, out string? paymentRequestPublicKeyBeneficiary);
-                    var paymentRequest = new PaymentRequestDTO() { BeneficiaryPublicKey = paymentRequestPublicKeyBeneficiary, SessionDetails = applicationContextService.Session.SessionDetails };
-
-                    var json = JsonSerializer.Serialize<PaymentRequestDTO>(paymentRequest);
-                    var encrypted = EncryptionService.EncryptUsingPublicKey(json, applicationContextService.Session.SessionResponse.PublicKey);
-                    var peasieRequestDTO = new PeasieRequestDTO { Id = applicationContextService.Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
-
-                    var url = applicationContextService.PeasieUrl + "/payment/request";
-                    var reference = url.WithOAuthBearerToken(applicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
-                    var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
-                    if (string.IsNullOrEmpty(reply.Payload))
-                        return false;
-
-                    var decrypted = EncryptionService.DecryptUsingPrivateKey(reply.Payload, applicationContextService.Session.PrivateKey);
-                    if (string.IsNullOrEmpty(decrypted)) return false;
-                    var paymentRequestReplyDTO = System.Text.Json.JsonSerializer.Deserialize<PeasieReplyDTO>(decrypted);
-
-                    var bankDecrypted = EncryptionService.DecryptUsingPrivateKey(paymentRequestReplyDTO.Payload, paymentRequestPrivateKeyBeneficiary);
-                    if (string.IsNullOrEmpty(decrypted)) return false;
-
-                    paymentResponseDTO = System.Text.Json.JsonSerializer.Deserialize<PaymentResponseDTO>(bankDecrypted);
-                }
-
-                // Use the SID to request the payment transaction immediately
-                applicationContextService?.Logger.LogDebug("Sending Payment TRX...");
-                if (paymentResponseDTO != null)
-                {
-                    applicationContextService?.Logger.LogDebug($"PaymentSID: {paymentResponseDTO.PaymentSID}");
-
-                    PaymentTransactionDTO paymentTrx = new(
-                        id: paymentResponseDTO.PaymentSID.ToString(),
-                        shortId: "",
-                        accountId: "",
-                        createdDate: DateTime.Now,
-                        updatedDate: DateTime.Now,
-                        paymentDate: DateTime.Now,
-                        transactionId: paymentParameters.TransactionId,
-                        transactionCategory: "",
-                        paymentType: "",
-                        type: "",
-                        sourceInfo: new SourceInfoDTO(type: "", identifier: "", internalAccountId: ""), // sourceInfo,
-                        destinationInfo: new DestinationInfoDTO(type: "", identifier: ""), // destinationInfo,
-                        source: null,
-                        destination: "",
-                        totalAmount: new AmountDTO(paymentParameters.Amount, paymentParameters.Currency),
-                        amount: new AmountDTO(paymentParameters.Amount, paymentParameters.Currency),
-                        fee: new AmountDTO(0, paymentParameters.Currency),
-                        runningBalance: new AmountDTO(0, paymentParameters.Currency),
-                        buyAmount: null,
-                        fxRate: null,
-                        midMarketRate: null,
-                        fixedSide: null,
-                        status: "INITIATED",
-                        failureReason: null,
-                        comment: paymentParameters.Comment,
-                        transactionReference: null,
-                        referenceAmount: null,
-                        accountHolderId: ""
-                    );
-
-                    applicationContextService?.Logger.LogDebug("Encrypting using public key of bank");
-                    var json = JsonSerializer.Serialize<PaymentTransactionDTO>(paymentTrx);
-                    var encryptedTrx = EncryptionService.EncryptUsingPublicKey(json, paymentResponseDTO.FinancialInstitutePublicKey);
-
-                    PeasieRequestDTO wrappedTrx = new()
+                    applicationContextService?.Logger?.LogDebug("Requesting Payment SID...");
+                    PaymentResponseDTO? paymentResponseDTO;
+                    string? paymentRequestPrivateKeyBeneficiary;
                     {
-                        Id = paymentResponseDTO.PaymentSID,
-                        Payload = encryptedTrx
-                    };
+                        var rsaPaymentRequest = TokenService.GeneratePPKRandomly(out paymentRequestPrivateKeyBeneficiary, out string? paymentRequestPublicKeyBeneficiary);
+                        var paymentRequest = new PaymentRequestDTO() { BeneficiaryPublicKey = paymentRequestPublicKeyBeneficiary, SessionDetails = applicationContextService?.Session?.SessionDetails };
 
-                    applicationContextService?.Logger.LogDebug("Encrypting using public key of Peasie session");
-                    var jsonWrappedTrx = JsonSerializer.Serialize<PeasieRequestDTO>(wrappedTrx);
-                    var encrypted = EncryptionService.EncryptUsingPublicKey(jsonWrappedTrx, applicationContextService.Session.SessionResponse.PublicKey);
+                        var json = JsonSerializer.Serialize<PaymentRequestDTO>(paymentRequest);
+                        var encrypted = EncryptionService.EncryptUsingPublicKey(json, applicationContextService.Session.SessionResponse.PublicKey);
+                        var peasieRequestDTO = new PeasieRequestDTO { Id = applicationContextService.Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
 
-                    applicationContextService?.Logger.LogDebug("Sending TRX...");
-                    var peasieRequestDTO = new PeasieRequestDTO { Id = applicationContextService.Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
-                    var url = applicationContextService.PeasieUrl + "/payment/trx";
-                    var reference = url.WithOAuthBearerToken(applicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
+                        var url = applicationContextService.PeasieUrl + "/payment/request";
+                        var reference = url.WithOAuthBearerToken(applicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
+                        var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
+                        if (string.IsNullOrEmpty(reply.Payload))
+                            return false;
 
-                    applicationContextService?.Logger.LogDebug("Receiving TRX response...");
+                        var decrypted = EncryptionService.DecryptUsingPrivateKey(reply.Payload, applicationContextService.Session.PrivateKey);
+                        if (string.IsNullOrEmpty(decrypted)) return false;
+                        var paymentRequestReplyDTO = System.Text.Json.JsonSerializer.Deserialize<PeasieReplyDTO>(decrypted);
 
-                    var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
-                    if (reply == null || string.IsNullOrEmpty(reply.Payload))
-                    {
-                        applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest (payload error)");
-                        return false;
+                        var bankDecrypted = EncryptionService.DecryptUsingPrivateKey(paymentRequestReplyDTO.Payload, paymentRequestPrivateKeyBeneficiary);
+                        if (string.IsNullOrEmpty(decrypted)) return false;
+
+                        paymentResponseDTO = System.Text.Json.JsonSerializer.Deserialize<PaymentResponseDTO>(bankDecrypted);
                     }
 
-                    var decrypted = EncryptionService.DecryptUsingPrivateKey(reply.Payload, applicationContextService.Session.PrivateKey);
-                    if (string.IsNullOrEmpty(decrypted))
+                    // Use the SID to request the payment transaction immediately
+                    applicationContextService?.Logger?.LogDebug("Sending Payment TRX...");
+                    if (paymentResponseDTO != null)
                     {
-                        applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest (decryption error)");
-                        return false;
-                    }
-                    var paymentTransactionReplyDTO = System.Text.Json.JsonSerializer.Deserialize<PeasieReplyDTO>(decrypted);
+                        applicationContextService?.Logger?.LogDebug($"PaymentSID: {paymentResponseDTO.PaymentSID}");
 
-                    var decryptedTrxResponse = EncryptionService.DecryptUsingPrivateKey(paymentTransactionReplyDTO.Payload, paymentRequestPrivateKeyBeneficiary);
+                        PaymentTransactionDTO paymentTrx = new(
+                            id: paymentResponseDTO.PaymentSID.ToString(),
+                            shortId: "",
+                            accountId: applicationContextService.Session.SessionDetails.User.Email,
+                            createdDate: DateTime.Now,
+                            updatedDate: DateTime.Now,
+                            paymentDate: DateTime.Now,
+                            transactionId: paymentParameters.TransactionId,
+                            transactionCategory: "",
+                            paymentType: "",
+                            type: "",
+                            sourceInfo: new SourceInfoDTO(type: "BANK", identifier: applicationContextService.Session.SessionDetails.User.Email, internalAccountId: ""), 
+                            destinationInfo: new DestinationInfoDTO(type: "SHOP", identifier: applicationContextService.Session.SessionDetails.User.Email),
+                            source: null,
+                            destination: applicationContextService.Session.SessionDetails.User.Type,
+                            totalAmount: new AmountDTO(paymentParameters.Amount, paymentParameters.Currency),
+                            amount: new AmountDTO(paymentParameters.Amount, paymentParameters.Currency),
+                            fee: new AmountDTO(0, paymentParameters.Currency),
+                            runningBalance: new AmountDTO(0, paymentParameters.Currency),
+                            buyAmount: null,
+                            fxRate: null,
+                            midMarketRate: null,
+                            fixedSide: null,
+                            status: "INITIATED",
+                            failureReason: null,
+                            comment: paymentParameters.Comment,
+                            transactionReference: null,
+                            referenceAmount: null,
+                            accountHolderId: ""
+                        );
 
-                    if (string.IsNullOrEmpty(decryptedTrxResponse))
-                    {
-                        applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest (TRX decryption error)");
-                        return false;
-                    }
+                        applicationContextService?.Logger?.LogDebug("Encrypting using public key of bank");
+                        var json = JsonSerializer.Serialize<PaymentTransactionDTO>(paymentTrx);
+                        var encryptedTrx = EncryptionService.EncryptUsingPublicKey(json, paymentResponseDTO.FinancialInstitutePublicKey);
 
-                    var paymentTrxResponse = System.Text.Json.JsonSerializer.Deserialize<PaymentTransactionDTO>(decryptedTrxResponse);
-
-                    applicationContextService?.Logger.LogDebug($"Payment TRX status: {paymentTrxResponse?.Status} (amt: {paymentTrxResponse?.Amount?.Value}, currency: {paymentTrxResponse?.Amount?.Currency})");
-
-                    var s = paymentResponseDTO.PaymentSID.ToString();
-                    if (paymentTrxResponse != null && !string.IsNullOrEmpty(s))
-                    {
-                        applicationContextService?.Logger.LogDebug("Remembering TRX...");
-                        // TODO: compare to trx already stored...
-
-                        _paymentTransactions[s] = new PaymentTrxWrapper() { Request = paymentTrx, Response = paymentResponseDTO };
-                        if (_paymentTransactions.ContainsKey(s))
+                        PeasieRequestDTO wrappedTrx = new()
                         {
-                            _paymentTransactions[s]?.Updates.Add(paymentTrxResponse);
-                        }
-                    }
+                            Id = paymentResponseDTO.PaymentSID,
+                            Payload = encryptedTrx
+                        };
 
-                    applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest");
+                        applicationContextService?.Logger?.LogDebug("Encrypting using public key of Peasie session");
+                        var jsonWrappedTrx = JsonSerializer.Serialize<PeasieRequestDTO>(wrappedTrx);
+                        var encrypted = EncryptionService.EncryptUsingPublicKey(jsonWrappedTrx, applicationContextService.Session.SessionResponse.PublicKey);
+
+                        applicationContextService?.Logger?.LogDebug("Sending TRX...");
+                        var peasieRequestDTO = new PeasieRequestDTO { Id = applicationContextService.Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
+                        var url = applicationContextService.PeasieUrl + "/payment/trx";
+                        var reference = url.WithOAuthBearerToken(applicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
+
+                        applicationContextService?.Logger?.LogDebug("Receiving TRX response...");
+
+                        var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
+                        if (reply == null || string.IsNullOrEmpty(reply.Payload))
+                        {
+                            applicationContextService?.Logger?.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest (payload error)");
+                            return false;
+                        }
+
+                        var decrypted = EncryptionService.DecryptUsingPrivateKey(reply.Payload, applicationContextService.Session.PrivateKey);
+                        if (string.IsNullOrEmpty(decrypted))
+                        {
+                            applicationContextService?.Logger?.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest (decryption error)");
+                            return false;
+                        }
+                        var paymentTransactionReplyDTO = System.Text.Json.JsonSerializer.Deserialize<PeasieReplyDTO>(decrypted);
+
+                        var decryptedTrxResponse = EncryptionService.DecryptUsingPrivateKey(paymentTransactionReplyDTO.Payload, paymentRequestPrivateKeyBeneficiary);
+
+                        if (string.IsNullOrEmpty(decryptedTrxResponse))
+                        {
+                            applicationContextService?.Logger?.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest (TRX decryption error)");
+                            return false;
+                        }
+
+                        var paymentTrxResponse = System.Text.Json.JsonSerializer.Deserialize<PaymentTransactionDTO>(decryptedTrxResponse);
+
+                        applicationContextService?.Logger?.LogDebug($"Payment TRX status: {paymentTrxResponse?.Status} (amt: {paymentTrxResponse?.Amount?.Value}, currency: {paymentTrxResponse?.Amount?.Currency})");
+
+                        var s = paymentResponseDTO.PaymentSID.ToString();
+                        if (paymentTrxResponse != null && !string.IsNullOrEmpty(s))
+                        {
+                            applicationContextService?.Logger?.LogDebug("Remembering TRX...");
+                            // TODO: compare to trx already stored...
+
+                            _paymentTransactions[s] = new PaymentTrxWrapper() { Request = paymentTrx, Response = paymentResponseDTO };
+                            if (_paymentTransactions.ContainsKey(s))
+                            {
+                                _paymentTransactions[s]?.Updates.Add(paymentTrxResponse);
+                            }
+                        }
+
+                        applicationContextService?.Logger?.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest");
+                    }
+                }
+                catch(Exception e)
+                {
+                    applicationContextService?.Logger?.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest (FAILED)");
+                    return false;
                 }
             }
 
-            applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest");
+            applicationContextService?.Logger?.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest");
             return valid;
         }
     }

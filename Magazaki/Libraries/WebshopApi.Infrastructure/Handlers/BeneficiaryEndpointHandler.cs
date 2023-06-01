@@ -185,7 +185,7 @@ namespace WebshopApi.Infrastructure.Handlers
                     applicationContextService?.Logger.LogDebug("Receiving TRX response...");
 
                     var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
-                    if (string.IsNullOrEmpty(reply.Payload))
+                    if (reply == null || string.IsNullOrEmpty(reply.Payload))
                     {
                         applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest (payload error)");
                         return false;

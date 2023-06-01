@@ -105,7 +105,7 @@ public class GebruikerRepository : IGebruikerRepository
         try
         {
             const string query =
-                "SELECT g.*, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Gebruiker g join Adres a on a.Id = g.AdresId WHERE g.Id = @id";
+                "SELECT g.Id, g.Voornaam, g.Familienaam, g.Email, g.Geboortedatum, g.Code, g.Telefoonnummer, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Gebruiker g join Adres a on a.Id = g.AdresId WHERE g.Id = @id";
             await using var command = connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.AddWithValue("@id", id);
@@ -155,11 +155,59 @@ public class GebruikerRepository : IGebruikerRepository
         try
         {
             const string query =
-                "SELECT g.*, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Gebruiker g join Adres a on a.Id = g.AdresId WHERE g.Voornaam = @voornaam AND g.Familienaam = @familienaam AND g.Email = @email";
+                "SELECT g.Id, g.Voornaam, g.Familienaam, g.Email, g.Geboortedatum, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Gebruiker g join Adres a on a.Id = g.AdresId WHERE g.Voornaam = @voornaam AND g.Familienaam = @familienaam AND g.Email = @email";
             await using var command = connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.AddWithValue("@voornaam", voornaam);
             command.Parameters.AddWithValue("@familienaam", familienaam);
+            command.Parameters.AddWithValue("@email", email);
+            await connection.OpenAsync();
+            await using var reader = command.ExecuteReader();
+            if (await reader.ReadAsync())
+            {
+                var gebruiker = new Gebruiker
+                {
+                    Id = reader.GetGuid("Id"),
+                    Voornaam = reader.GetString("Voornaam"),
+                    Familienaam = reader.GetString("Familienaam"),
+                    Email = reader.GetString("Email"),
+                    Geboortedatum = reader.GetDateTime("Geboortedatum"),
+                    Adres = new Adres
+                    {
+                        Id = reader.GetGuid("AdresId"),
+                        Straat = reader.GetString("Straat"),
+                        Huisnummer = reader.GetString("Huisnummer"),
+                        Gemeente = reader.GetString("Gemeente"),
+                        Postcode = reader.GetString("Postcode"),
+                        Land = reader.GetString("Land")
+                    }
+                };
+                return gebruiker;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            throw new GebruikerRepositoryException("Er is een fout opgetreden bij het ophalen van de gebruiker.", e);
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
+    }
+
+    public async Task<Gebruiker?> GebruikerOphalenAsync(string email)
+    {
+        var connection = new MySqlConnection(_connectionString);
+        try
+        {
+            const string query =
+                "SELECT g.Id, g.Voornaam, g.Familienaam, g.Email, g.Geboortedatum, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Gebruiker g join Adres a on a.Id = g.AdresId WHERE g.Email = @email";
+            await using var command = connection.CreateCommand();
+            command.CommandText = query;
             command.Parameters.AddWithValue("@email", email);
             await connection.OpenAsync();
             await using var reader = command.ExecuteReader();

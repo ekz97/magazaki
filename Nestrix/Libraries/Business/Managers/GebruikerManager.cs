@@ -36,6 +36,29 @@ public class GebruikerManager
         }
     }
 
+    public async Task<Gebruiker?> GebruikerOphalenAsync(string email)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                throw new GebruikerManagerException("Id is leeg");
+            }
+
+            var gebruiker = await _gebruikerRepository.GebruikerOphalenViaEmailAsync(email);
+            if (gebruiker == null)
+            {
+                throw new GebruikerManagerException($"Gebruiker met email {email} niet gevonden");
+            }
+
+            return gebruiker;
+        }
+        catch (Exception e)
+        {
+            throw new GebruikerManagerException($"Er is een fout opgetreden bij het ophalen van de gebruiker met email {email}", e);
+        }
+    }
+
     public async Task GebruikerToevoegenAsync(Gebruiker gebruiker)
     {
         try

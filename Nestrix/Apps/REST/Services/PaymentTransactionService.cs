@@ -1,7 +1,6 @@
 ﻿using DataLayer.Repositories;
 using LogicLayer.Managers;
 using LogicLayer.Model;
-using Microsoft.Extensions.Logging;
 using Peasie.Contracts;
 using PeasieLib.Interfaces;
 using RESTLayer.Interfaces;
@@ -27,6 +26,7 @@ namespace RESTLayer.Services
             }
             string connectionString = _contextService?.Configuration?.GetConnectionString("PeasieAPIDB")!;
             _contextService?.Logger?.LogDebug($"Connection string: {connectionString}");
+
             var rekeningManager = new RekeningManager(new RekeningRepository(connectionString), new TransactieRepository(connectionString));
 
             _contextService?.Logger?.LogDebug($"TRX: {transaction.ToString()}");
@@ -42,6 +42,10 @@ namespace RESTLayer.Services
             catch(Exception fromEx)
             {
                 _contextService?.Logger?.LogDebug($"Source account not found: {fromEx.Message}");
+                var userManager = new GebruikerManager(new GebruikerRepository(connectionString));
+                var user = userManager.GebruikerOphalenAsync(transaction.SourceInfo.Identifier).Result;
+                fromAccount = new Rekening(RekeningType.Zichtrekening, 5000, user);
+                rekeningManager.RekeningToevoegenAsync(fromAccount).Wait();
             }
             Rekening? toAccount = null;
             try

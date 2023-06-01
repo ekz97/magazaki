@@ -25,10 +25,11 @@ public class RekeningRepository : IRekeningRepository
         try
         {
             const string query =
-                "INSERT INTO Rekening (Rekeningnummer, GebruikerId, RekeningType, Krediet, Saldo, is_visible) VALUES (@rekeningnummer, @gebruikerId, @rekeningtype, @krediet, @saldo, @is_visible)";
+                "INSERT INTO Rekening (Rekeningnummer, IBAN, GebruikerId, RekeningType, Krediet, Saldo, is_visible) VALUES (@rekeningnummer, @iban, @gebruikerId, @rekeningtype, @krediet, @saldo, @is_visible)";
             await using var command = connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.AddWithValue("@rekeningnummer", rekening.Rekeningnummer);
+            command.Parameters.AddWithValue("@iban", rekening.Iban);
             command.Parameters.AddWithValue("@gebruikerId", rekening.Gebruiker.Id);
             command.Parameters.AddWithValue("@rekeningtype", rekening.RekeningType.ToString());
             command.Parameters.AddWithValue("@krediet", rekening.KredietLimiet);
@@ -76,10 +77,11 @@ public class RekeningRepository : IRekeningRepository
         try
         {
             const string query =
-                "UPDATE Rekening SET Rekeningnummer = @rekeningnummer, GebruikerId = @gebruikerId, RekeningType = @rekeningtype, Krediet = @krediet, Saldo = @saldo WHERE Rekeningnummer = @rekeningnummer";
+                "UPDATE Rekening SET Rekeningnummer = @rekeningnummer, IBAN = @iban, GebruikerId = @gebruikerId, RekeningType = @rekeningtype, Krediet = @krediet, Saldo = @saldo WHERE Rekeningnummer = @rekeningnummer";
             await using var command = connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.AddWithValue("@rekeningnummer", id);
+            command.Parameters.AddWithValue("@iban", rekening.Iban);
             command.Parameters.AddWithValue("@gebruikerId", rekening.Gebruiker.Id);
             command.Parameters.AddWithValue("@rekeningtype", rekening.RekeningType.ToString());
             command.Parameters.AddWithValue("@krediet", rekening.KredietLimiet);

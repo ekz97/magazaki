@@ -63,9 +63,14 @@ namespace RESTLayer.Handlers
                 }
 
                 if (string.IsNullOrEmpty(decrypted) || string.IsNullOrEmpty(paymentRequest?.BeneficiaryPublicKey))
+                {
+                    applicationContextService?.Logger.LogDebug("<- FinancialInstituteEndpointHandler::PaymentRequest (BadRequest)");
                     return Results.BadRequest();
+                }
                
                 // send payment SID
+                applicationContextService?.Logger.LogDebug("Sending Payment SID...");
+
                 var paymentSID = Guid.NewGuid();
                 TokenService.GeneratePPKRandomly(out string privateKey, out string publicKey);
                 var paymentResponseDTO = new PaymentResponseDTO
@@ -92,9 +97,11 @@ namespace RESTLayer.Handlers
                 };
 
                 // remember
+                applicationContextService?.Logger.LogDebug("Remembering Payment SID...");
+
                 _paymentHistory[paymentSID.ToString()] = new PaymentWrapper() { Request = paymentRequest, Response = paymentResponseDTO, FinancialInstitutePrivateKey = privateKey }; // private key is of bank!
 
-                applicationContextService?.Logger.LogDebug("<- FinancialInstituteEndpointHandler::PaymentRequest");
+                applicationContextService?.Logger.LogDebug("<- FinancialInstituteEndpointHandler::PaymentRequest (OK)");
                 return Results.Ok(reply);
             }).RequireAuthorization("IsAuthorized");
 
@@ -113,15 +120,20 @@ namespace RESTLayer.Handlers
                 }
 
                 if (string.IsNullOrEmpty(decrypted))
+                {
+                    applicationContextService?.Logger.LogDebug("<- FinancialInstituteEndpointHandler::PaymentTrx (BadRequest)");
                     return Results.BadRequest();
+                }
 
                 var paymentRequest = _paymentHistory[bankPeasieRequestDTO.Id];
                 var decryptedBankTrx = EncryptionService.DecryptUsingPrivateKey(bankPeasieRequestDTO.Payload, paymentRequest.FinancialInstitutePrivateKey);
 
                 var trx = JsonSerializer.Deserialize<PaymentTransactionDTO>(decryptedBankTrx);
 
+                applicationContextService?.Logger.LogDebug("About to call payment service...");
                 if (trx != null)
                 {
+                    applicationContextService?.Logger.LogDebug("Calling payment service...");
                     trx = financialTransactionProcessor?.Process(trx);
                     // trx.Status = "COMPLETED"; // TODO: adapt own history!!
                 }
@@ -143,7 +155,7 @@ namespace RESTLayer.Handlers
                     Payload = encryptedResponse
                 };
 
-                applicationContextService?.Logger.LogDebug("<- FinancialInstituteEndpointHandler::PaymentTrx");
+                applicationContextService?.Logger.LogDebug("<- FinancialInstituteEndpointHandler::PaymentTrx (OK)");
                 return Results.Ok(reply);
             }).RequireAuthorization("IsAuthorized");
 

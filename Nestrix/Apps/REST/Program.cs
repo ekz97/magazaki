@@ -259,7 +259,7 @@ namespace RESTLayer
             // -------------------------------------
             builder.Services.AddSingleton<IPeasieApplicationContextService>(ApplicationContextService);
 
-            builder.Services.AddSingleton<IPaymentTransactionService>();
+            builder.Services.AddSingleton<PaymentTransactionService>();
 
             builder.Services.AddScoped<IAuthorizationHandler, FinancialInstituteAuthorizationHandler>();
             builder.Services.AddScoped<FinancialInstituteEndpointHandler>();

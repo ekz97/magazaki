@@ -10,11 +10,6 @@ namespace RESTLayer.Services
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
 
-        public PaymentTransactionService()
-        {
-
-        }
-
         public PaymentTransactionService(ILogger logger, IConfiguration configuration)
         {
             _logger = logger;

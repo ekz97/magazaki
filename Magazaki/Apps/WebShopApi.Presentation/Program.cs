@@ -223,10 +223,11 @@ namespace WebshopApi.Presentation
             // ----------------------
             builder.Services.AddControllers();
 
-            
+
 
             // Add custom services to the container.
             // -------------------------------------
+            builder.Services.AddHostedService<StartupHostedService>();
             builder.Services.AddSingleton<IPeasieApplicationContextService>(ApplicationContextService);
             builder.Services.AddScoped<IAuthorizationHandler, BeneficiaryAuthorizationHandler>();
             builder.Services.AddScoped<BeneficiaryEndpointHandler>();
@@ -238,8 +239,8 @@ namespace WebshopApi.Presentation
             builder.Services.AddHangfire(configuration => configuration.UseMemoryStorage()).AddHangfireServer();
             //JobStorage.Current = new MemoryStorage();
 
-            if (builder.Environment.IsDevelopment())
-            {
+            //if (builder.Environment.IsDevelopment())
+            //{
                 // Move services you want to use in development only here.
                 builder.Services.AddAutoMapper(typeof(MappingConfig));
                 builder.Services.AddScoped<IPasswordHasher<Domain.Models.Customer>, PasswordHasher<Domain.Models.Customer>>();
@@ -257,7 +258,7 @@ namespace WebshopApi.Presentation
                 builder.Services.AddScoped<IPriceTypeService, PriceTypeService>();
                 builder.Services.AddScoped<IStoreRepository, EfStoreRepository>();
                 builder.Services.AddScoped<IStoreService, StoreService>();
-            }
+            //}
 
             // Add the app to the container.
             // -----------------------------

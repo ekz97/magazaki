@@ -5,7 +5,9 @@ better: systemctl restart mysql
 to limit: ufw allow from <remote_IP_address> to any port 3306
 
 CREATE USER 'root'@'78-22-152-189.access.telenet.be' IDENTIFIED BY 'ZwarteRidder007';
+CREATE USER 'root'@'vic-vm' IDENTIFIED BY 'ZwarteRidder007';
 GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCES, RELOAD on *.* TO 'root'@'78-22-152-189.access.telenet.be' WITH GRANT OPTION;
+GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCES, RELOAD on *.* TO 'root'@'vic-cm' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 
 https://www.sqlshack.com/how-to-backup-and-restore-mysql-databases-using-the-mysqldump-command/

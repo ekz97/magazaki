@@ -280,6 +280,7 @@ namespace RESTLayer
             var app = builder.Build();
 
             ApplicationContextService.Logger = app.Logger;
+            ApplicationContextService.Configuration = app.Configuration;
 
             // Map the endpoints.
             // ------------------

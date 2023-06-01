@@ -15,7 +15,7 @@ using LettuceEncrypt.Acme;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using IHostApplicationLifetime = Microsoft.Extensions.Hosting.IApplicationLifetime;
+//using IHostApplicationLifetime = Microsoft.Extensions.Hosting.IApplicationLifetime;
 
 namespace LettuceEncrypt.Internal
 {

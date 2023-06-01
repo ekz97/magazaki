@@ -7,16 +7,27 @@ namespace RESTLayer.Services
 {
     public class PaymentTransactionService : IPaymentTransactionService
     {
-        private RekeningManager _rekeningManager;
+        private RekeningManager? _rekeningManager = null;
+        private readonly ILogger<PaymentTransactionService> _logger;
+        private readonly IConfiguration _configuration;
+
+        public PaymentTransactionService(ILogger<PaymentTransactionService> logger, IConfiguration configuration)
+        {
+            _logger = logger;
+            _configuration = configuration;
+        }   
+
         public PaymentTransactionDTO Process(PaymentTransactionDTO transaction)
         {
-            string connectionString = "Server=db4free.net;port=3306;user=glenncolombie;password=Nestrix123;database=nestrixdb";
+            _logger?.LogDebug("-> PaymentTransactionService::Process");
+            string connectionString = _configuration.GetConnectionString("PeasieAPIDB")!;
             _rekeningManager = new(new RekeningRepository(connectionString), new TransactieRepository(connectionString));
             var source = Guid.Parse("3c146461-8b97-4028-8a51-3511113d3e95");
             var rekening = "";
             if (string.IsNullOrEmpty(rekening))
             {
                 transaction.Status = "FAILED";
+                _logger?.LogDebug("<- PaymentTransactionService::Process (FAILED)");
                 return transaction;
             }
             else
@@ -24,6 +35,7 @@ namespace RESTLayer.Services
 
             }
             transaction.Status = "COMPLETED";
+            _logger?.LogDebug("<- PaymentTransactionService::Process");
             return transaction;
         }
     }

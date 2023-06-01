@@ -255,12 +255,10 @@ namespace RESTLayer
             builder.Services.AddResponseCompression();
             builder.Services.AddRequestDecompression();
 
-            PaymentTransactionService financialTransactionProcessorService = new();
-
             // Add custom services to the container.
             // -------------------------------------
             builder.Services.AddSingleton<IPeasieApplicationContextService>(ApplicationContextService);
-            builder.Services.AddSingleton<IPaymentTransactionService>(financialTransactionProcessorService);
+            builder.Services.AddSingleton<IPaymentTransactionService>();
             builder.Services.AddScoped<IAuthorizationHandler, FinancialInstituteAuthorizationHandler>();
             builder.Services.AddScoped<FinancialInstituteEndpointHandler>();
 

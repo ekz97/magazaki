@@ -9,7 +9,7 @@ public class MapFromDomain
     {
         return new AdresRESTOutputDTO
         {
-            Id = (Guid)adres.Id,
+            Id = adres.Id ?? Guid.NewGuid(),
             Straat = adres.Straat,
             Huisnummer = adres.Huisnummer,
             Postcode = adres.Postcode,

@@ -1,5 +1,4 @@
-﻿using LogicLayer.Managers;
-using LogicLayer.Model;
+﻿using LogicLayer.Model;
 using RESTLayer.Exceptions;
 using RESTLayer.Model.Input;
 

@@ -7,7 +7,7 @@ public class TransferRequest
     public decimal Amount { get; set; }
     public string? Description { get; set; }
 
-    public TransferRequest(Guid from, Guid to, decimal amount, string description = null)
+    public TransferRequest(Guid from, Guid to, decimal amount, string? description = null)
     {
         From = from;
         To = to;

@@ -1,3 +1,15 @@
+Don't forget to bind to 10.11.0.44 if you want remote access; also for mysql, see /etc/mysql/mysql.conf.d/mysqld.cnf (instead of 127.0.0.1)
+For mysql, better: 0.0.0.0
+/etc/init.d/mysql restart
+better: systemctl restart mysql
+to limit: ufw allow from <remote_IP_address> to any port 3306
+
+CREATE USER 'root'@'78-22-152-189.access.telenet.be' IDENTIFIED BY 'ZwarteRidder007';
+GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCES, RELOAD on *.* TO 'root'@'78-22-152-189.access.telenet.be' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+https://www.sqlshack.com/how-to-backup-and-restore-mysql-databases-using-the-mysqldump-command/
+
 dotnet tool install --global dotnet-ef
 dotnet tool install --global certes
 export PATH="$PATH:$HOME/.dotnet/tools/"

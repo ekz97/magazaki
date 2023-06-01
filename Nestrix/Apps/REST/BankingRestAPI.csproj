@@ -10,12 +10,9 @@
     <ItemGroup>
         <PackageReference Include="dotenv.net" Version="3.1.2" />
         <PackageReference Include="Flurl.Http" Version="3.2.4" />
-		<PackageReference Include="Hangfire.AspNetCore" Version="1.8.1" />
-		<PackageReference Include="Hangfire.Core" Version="1.8.1" />
+		<PackageReference Include="Hangfire.AspNetCore" Version="1.8.2" />
+		<PackageReference Include="Hangfire.Core" Version="1.8.2" />
 		<PackageReference Include="Hangfire.MemoryStorage.Core" Version="1.4.0" />
-		<PackageReference Include="Flurl.Http" Version="3.2.4" />
-
-		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />

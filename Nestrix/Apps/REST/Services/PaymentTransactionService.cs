@@ -29,7 +29,7 @@ namespace RESTLayer.Services
 
             _contextService?.Logger?.LogDebug($"TRX: {transaction.ToString()}");
 
-            var source = Guid.Parse("3c146461-8b97-4028-8a51-3511113d3e95");
+            // var source = Guid.Parse("3c146461-8b97-4028-8a51-3511113d3e95");
 
             var fromAccount = rekeningManager.RekeningOphalenAsync(Guid.Parse(transaction.SourceInfo.Identifier)).Result;
             var toAccount = rekeningManager.RekeningOphalenAsync(Guid.Parse(transaction.DestinationInfo.Identifier)).Result;

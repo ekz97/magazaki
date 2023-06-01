@@ -10,6 +10,9 @@ FLUSH PRIVILEGES;
 
 https://www.sqlshack.com/how-to-backup-and-restore-mysql-databases-using-the-mysqldump-command/
 
+mysqldump.exe --defaults-file="C:\Users\u2389\AppData\Local\Temp\tmpijdoqr9r.cnf"  --host=db4free.net --port=3306 --default-character-set=utf8 --user=magazakiteam --protocol=tcp --column-statistics=FALSE --single-transaction=TRUE --routines --events "magazakidb"
+
+
 dotnet tool install --global dotnet-ef
 dotnet tool install --global certes
 export PATH="$PATH:$HOME/.dotnet/tools/"

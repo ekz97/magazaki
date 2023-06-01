@@ -45,7 +45,7 @@ public class GebruikerManager
                 throw new GebruikerManagerException("Id is leeg");
             }
 
-            var gebruiker = await _gebruikerRepository.GebruikerOphalenViaEmailAsync(email);
+            var gebruiker = await _gebruikerRepository.GebruikerOphalenAsync(email);
             if (gebruiker == null)
             {
                 throw new GebruikerManagerException($"Gebruiker met email {email} niet gevonden");

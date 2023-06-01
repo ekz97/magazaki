@@ -37,7 +37,7 @@ namespace RESTLayer.Services
             try
             {
                 fromAccount = rekeningManager.RekeningOphalenViaEmailAsync(transaction.SourceInfo.Identifier).Result;
-                _contextService?.Logger?.LogDebug($"Source account found for {transaction.SourceInfo.Identifier}");
+                _contextService?.Logger?.LogDebug($"Source account found for {transaction.SourceInfo.Identifier}: saldo {fromAccount.Saldo} (credit {fromAccount.KredietLimiet}");
             }
             catch(Exception fromEx)
             {
@@ -76,7 +76,7 @@ namespace RESTLayer.Services
                 var success = false;
                 try
                 {
-                    success = rekeningManager.TransferMoneyAsync(fromAccount, toAccount, transaction?.Amount?.Value ?? 0).Result;
+                    success = rekeningManager.TransferMoneyAsync(fromAccount, toAccount, transaction?.Amount?.Value ?? 0, transaction?.Comment).Result;
                 }
                 catch(Exception ex)
                 {

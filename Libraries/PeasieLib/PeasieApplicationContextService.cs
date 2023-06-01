@@ -77,7 +77,6 @@ namespace PeasieLib
                 return false;
             }
 
-            bool valid = false;
             // TODO: check secret in identity db
 
             // request session key
@@ -90,7 +89,10 @@ namespace PeasieLib
             var reference = url.WithOAuthBearerToken(AuthenticationToken).PostJsonAsync(sessionRequest).Result;
             var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
             if (string.IsNullOrEmpty(reply.Payload))
+            {
+                Logger?.LogError("Cannot request session: no payload");
                 return false;
+            }
             var decrypted = EncryptionService.DecryptUsingPrivateKey(reply.Payload, privateKey);
             var sessionResponse = System.Text.Json.JsonSerializer.Deserialize<SessionResponseDTO>(decrypted);
 
@@ -99,9 +101,13 @@ namespace PeasieLib
             Session = wrapper;
 
             if (Session == null || Session.SessionResponse == null)
+            {
+                Logger?.LogError("Cannot request session: no response");
                 return false;
+            }
 
             // send session details
+            Logger?.LogDebug("Sending session details...");
             var sessionDetailsDTO = new SessionDetailsDTO() { Guid = Session.SessionResponse.SessionGuid, User = userDTO, Issuer = Issuer, Audience = Audience, WebHook = WebHook, JWTAuthorizationToken = AuthenticationToken };
             var json = JsonSerializer.Serialize<SessionDetailsDTO>(sessionDetailsDTO);
             var encrypted = EncryptionService.EncryptUsingPublicKey(json, Session.SessionResponse.PublicKey);
@@ -109,12 +115,11 @@ namespace PeasieLib
             url = PeasieUrl + "/session/details";
             reference = url.WithOAuthBearerToken(AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
 
+            Logger?.LogDebug("Remembering session details...");
             // remember
             Session.SessionDetails = sessionDetailsDTO;
 
-            valid = true;
-
-            return valid;
+            return true;
         }
 
         // TODO: use ToHtmlTable()

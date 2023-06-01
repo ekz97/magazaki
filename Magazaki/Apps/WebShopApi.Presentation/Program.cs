@@ -276,8 +276,8 @@ namespace WebshopApi.Presentation
             // ------------------------------------
             app.UseResponseCompression();
             app.UseRequestDecompression();
-            app.UseHsts();
-            app.UseHttpsRedirection();
+            //app.UseHsts();
+            //app.UseHttpsRedirection();
 
             app.MapHealthChecks("/Health");
 
@@ -344,8 +344,12 @@ namespace WebshopApi.Presentation
                 }
                 catch (Exception ex)
                 {
-                    ApplicationContextService.AuthenticationToken = null;
-                    ApplicationContextService.Session = null;
+                    if (ApplicationContextService != null)
+                    {
+                        ApplicationContextService.Logger?.LogError(ex.Message);
+                        ApplicationContextService.AuthenticationToken = null;
+                        ApplicationContextService.Session = null;
+                    }
                     ok = false;
                 }
             }
@@ -355,7 +359,7 @@ namespace WebshopApi.Presentation
                 // request authentication token
                 ApplicationContextService?.GetAuthenticationToken();
                 // request session
-                ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Secret = "MijnGeheim", Type = "SHOP", Designation = "Colruyt" });
+                bool? sessionOk = ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Secret = "MijnGeheim", Type = "SHOP", Designation = "Colruyt" });
             }
             else if (ApplicationContextService?.DemoMode == true)
             {

@@ -5,6 +5,7 @@ namespace LogicLayer.Model;
 public class Rekening
 {
     public Guid Rekeningnummer { get; set; }
+    public string Iban { get; set; }
     public RekeningType RekeningType { get; set; }
     public decimal KredietLimiet { get; set; }
     public decimal Saldo { get; set; }
@@ -12,12 +13,13 @@ public class Rekening
     public Gebruiker Gebruiker { get; set; }
     
     // Nieuwe rekening aanmaken
-    public Rekening(RekeningType rekeningType, decimal kredietLimiet, Gebruiker gebruiker)
+    public Rekening(RekeningType rekeningType, decimal kredietLimiet, Gebruiker? gebruiker = null)
     {
         Rekeningnummer = Guid.NewGuid();
         ZetRekeningType(rekeningType);
         ZetKredietLimiet(kredietLimiet);
-        ZetGebruiker(gebruiker);
+        if(gebruiker != null)
+            ZetGebruiker(gebruiker);
         Saldo = 0;
         Transacties = new List<Transactie>();
     }
@@ -33,10 +35,11 @@ public class Rekening
     }
 
     // Rekening ophalen uit database// Controles zijn niet nodig
-    public Rekening(Guid rekeningnummer, RekeningType rekeningType, decimal kredietLimiet, decimal saldo,
+    public Rekening(Guid rekeningnummer, string iban, RekeningType rekeningType, decimal kredietLimiet, decimal saldo,
         List<Transactie> transacties, Gebruiker gebruiker)
     {
         Rekeningnummer = rekeningnummer;
+        Iban = iban;
         RekeningType = rekeningType;
         KredietLimiet = kredietLimiet;
         Saldo = saldo;

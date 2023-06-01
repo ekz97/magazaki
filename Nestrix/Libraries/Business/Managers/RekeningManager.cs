@@ -64,24 +64,18 @@ public class RekeningManager
 
     public async Task RekeningWijzigenAsync(Guid id, Rekening rekening)
     {
+        if (id == Guid.Empty)
+        {
+            throw new RekeningManagerException("Id is leeg");
+        }
+
+        if (rekening == null)
+        {
+            throw new RekeningManagerException("Rekening is leeg");
+        }
         try
         {
-            if (id == Guid.Empty)
-            {
-                throw new RekeningManagerException("Id is leeg");
-            }
-
-            if (rekening == null)
-            {
-                throw new RekeningManagerException("Rekening is leeg");
-            }
-
-            var rekeningDb = await _rekeningRepository.RekeningOphalenAsync(rekening.Rekeningnummer, 0);
-            if (rekeningDb == null)
-            {
-                throw new RekeningManagerException("Rekening bestaat niet");
-            }
-
+            var rekeningDb = await _rekeningRepository.RekeningOphalenAsync(rekening.Rekeningnummer, 0) ?? throw new RekeningManagerException("Rekening bestaat niet");
             if (rekeningDb.Equals(rekening))
             {
                 Console.WriteLine("Rekening is niet gewijzigd.");
@@ -97,20 +91,31 @@ public class RekeningManager
 
     public async Task<Rekening?> RekeningOphalenAsync(Guid id, int depth = 0)
     {
+        if (id == Guid.Empty)
+        {
+            throw new RekeningManagerException("Id is leeg");
+        }
         try
         {
-            if (id == Guid.Empty)
-            {
-                throw new RekeningManagerException("Id is leeg");
-            }
-
-            var rekeningDb = await _rekeningRepository.RekeningOphalenAsync(id, 0);
-            if (rekeningDb == null)
-            {
-                throw new RekeningManagerException("Rekening bestaat niet");
-            }
-
+            var rekeningDb = await _rekeningRepository.RekeningOphalenAsync(id, 0) ?? throw new RekeningManagerException("Rekening bestaat niet");
             return await _rekeningRepository.RekeningOphalenAsync(id, depth);
+        }
+        catch (Exception e)
+        {
+            throw new RekeningManagerException("Er is een fout opgetreden bij het ophalen van de rekening.", e);
+        }
+    }
+
+    public async Task<Rekening?> RekeningOphalenViaEmailAsync(string email, int depth = 0)
+    {
+        if (string.IsNullOrEmpty(email))
+        {
+            throw new RekeningManagerException("Email is leeg");
+        }
+        try
+        {
+            var rekeningDb = await _rekeningRepository.RekeningOphalenViaEmailAsync(email, 0) ?? throw new RekeningManagerException("Rekening bestaat niet");
+            return await _rekeningRepository.RekeningOphalenViaEmailAsync(email, depth);
         }
         catch (Exception e)
         {
@@ -120,15 +125,16 @@ public class RekeningManager
 
     public async Task<bool> TransferMoneyAsync(Rekening from, Rekening to, decimal amount, string? mededeling = null)
     {
+        // Je moet iets kunnen storten op een vreemd rekeningnummer...
         var date = DateTime.Now;
-        if (from == null || to == null)
+        if (from == null /*|| to == null*/)
         {
-            throw new TransactieManagerException("Rekening is leeg");
+            throw new TransactieManagerException("Rekening is onbekend");
         }
 
         if (amount <= 0)
         {
-            throw new TransactieManagerException("Bedrag is leeg");
+            throw new TransactieManagerException("Bedrag is niet zinvol");
         }
         if (from.Saldo - amount < -from.KredietLimiet)
         {
@@ -165,6 +171,7 @@ public class RekeningManager
             transaction.Dispose();
             throw new TransactieManagerException("Er ging iets fout bij het uitvoeren van de transactie", e);
         }
+        //return false;
     }
 
     private void PerformTransfer(Rekening from, Rekening to, decimal amount, Transactie transactie,

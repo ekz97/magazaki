@@ -1,5 +1,7 @@
 ﻿using DataLayer.Repositories;
 using LogicLayer.Managers;
+using LogicLayer.Model;
+using Microsoft.Extensions.Logging;
 using Peasie.Contracts;
 using PeasieLib.Interfaces;
 using RESTLayer.Interfaces;
@@ -31,9 +33,28 @@ namespace RESTLayer.Services
 
             // var source = Guid.Parse("3c146461-8b97-4028-8a51-3511113d3e95");
 
-            var fromAccount = rekeningManager.RekeningOphalenAsync(Guid.Parse(transaction.SourceInfo.Identifier)).Result;
-            var toAccount = rekeningManager.RekeningOphalenAsync(Guid.Parse(transaction.DestinationInfo.Identifier)).Result;
+            Rekening? fromAccount = null;
+            try
+            {
+                fromAccount = rekeningManager.RekeningOphalenViaEmailAsync(transaction.SourceInfo.Identifier).Result;
+            }
+            catch(Exception fromEx)
+            {
+                _contextService?.Logger?.LogDebug(fromEx.Message);
+            }
+            Rekening? toAccount = null;
+            try
+            {
+                toAccount = rekeningManager.RekeningOphalenViaEmailAsync(transaction.DestinationInfo.Identifier).Result;
+            }
+            catch(Exception toEx)
+            {
+                _contextService?.Logger?.LogDebug(toEx.Message);
+            }
 
+            // it is possible to send money to an account we do not manage as a bank ... we should verify the existence of the account at the destination bank however
+            if (toAccount == null)
+                toAccount = new LogicLayer.Model.Rekening(LogicLayer.Model.RekeningType.Zichtrekening, -1, null);
 
             if (fromAccount == null || toAccount == null)
             {
@@ -43,7 +64,15 @@ namespace RESTLayer.Services
             }
             else
             {
-                var success = rekeningManager.TransferMoneyAsync(fromAccount, toAccount, transaction?.Amount?.Value?? 0).Result;
+                var success = false;
+                try
+                {
+                    success = rekeningManager.TransferMoneyAsync(fromAccount, toAccount, transaction?.Amount?.Value ?? 0).Result;
+                }
+                catch(Exception ex)
+                {
+                    _contextService?.Logger?.LogDebug(ex.Message);
+                }
                 if(!success)
                 {
                     transaction.Status = "FAILED";

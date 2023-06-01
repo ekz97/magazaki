@@ -42,7 +42,7 @@ public class GebruikerManager
         {
             if (string.IsNullOrEmpty(email))
             {
-                throw new GebruikerManagerException("Id is leeg");
+                throw new GebruikerManagerException("Email is niet opgegeven");
             }
 
             var gebruiker = await _gebruikerRepository.GebruikerOphalenAsync(email);

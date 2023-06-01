@@ -155,7 +155,7 @@ public class GebruikerRepository : IGebruikerRepository
         try
         {
             const string query =
-                "SELECT g.Id, g.Voornaam, g.Familienaam, g.Email, g.Geboortedatum, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Gebruiker g join Adres a on a.Id = g.AdresId WHERE g.Voornaam = @voornaam AND g.Familienaam = @familienaam AND g.Email = @email";
+                "SELECT g.Id, g.Voornaam, g.Familienaam, g.Email, g.Geboortedatum, a.AdresId, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Gebruiker g join Adres a on a.Id = g.AdresId WHERE g.Voornaam = @voornaam AND g.Familienaam = @familienaam AND g.Email = @email";
             await using var command = connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.AddWithValue("@voornaam", voornaam);
@@ -205,7 +205,7 @@ public class GebruikerRepository : IGebruikerRepository
         try
         {
             const string query =
-                "SELECT g.Id, g.Voornaam, g.Familienaam, g.Email, g.Geboortedatum, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Gebruiker g join Adres a on a.Id = g.AdresId WHERE g.Email = @email";
+                "SELECT g.Id, g.Voornaam, g.Familienaam, g.Email, g.Geboortedatum, a.AdresId, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Gebruiker g join Adres a on a.Id = g.AdresId WHERE g.Email = @email";
             await using var command = connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.AddWithValue("@email", email);

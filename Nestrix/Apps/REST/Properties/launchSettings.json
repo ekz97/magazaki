@@ -16,7 +16,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:7126;http://10.11.0.44:3004",
+      "applicationUrl": "https://localhost:7125;http://10.11.0.44:3004",
       "dotnetRunMessages": true
     },
     "Staging": {
@@ -26,7 +26,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Staging"
       },
-      "applicationUrl": "https://localhost:7126;http://10.11.0.44:3004",
+      "applicationUrl": "https://localhost:7125;http://10.11.0.44:3004",
       "dotnetRunMessages": true
     },
     "Production": {
@@ -36,7 +36,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Production"
       },
-      "applicationUrl": "https://localhost:7126;http://10.11.0.44:3004",
+      "applicationUrl": "https://localhost:7125;http://10.11.0.44:3004",
       "dotnetRunMessages": true
     },
     "Docker": {

@@ -37,6 +37,7 @@ namespace RESTLayer.Services
             try
             {
                 fromAccount = rekeningManager.RekeningOphalenViaEmailAsync(transaction.SourceInfo.Identifier).Result;
+                _contextService?.Logger?.LogDebug($"Source account found for {transaction.SourceInfo.Identifier}");
             }
             catch(Exception fromEx)
             {
@@ -46,8 +47,9 @@ namespace RESTLayer.Services
             try
             {
                 toAccount = rekeningManager.RekeningOphalenViaEmailAsync(transaction.DestinationInfo.Identifier).Result;
+                _contextService?.Logger?.LogDebug($"Destination account found for {transaction.DestinationInfo.Identifier}");
             }
-            catch(Exception toEx)
+            catch (Exception toEx)
             {
                 _contextService?.Logger?.LogDebug(toEx.Message);
             }

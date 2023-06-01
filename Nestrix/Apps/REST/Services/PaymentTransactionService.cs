@@ -1,32 +1,31 @@
 ﻿using DataLayer.Repositories;
 using LogicLayer.Managers;
 using Peasie.Contracts;
+using PeasieLib.Interfaces;
 using RESTLayer.Interfaces;
 
 namespace RESTLayer.Services
 {
     public class PaymentTransactionService : IPaymentTransactionService
     {
-        private readonly ILogger _logger;
-        private readonly IConfiguration _configuration;
+        private readonly IPeasieApplicationContextService _contextService;
 
-        public PaymentTransactionService(ILogger<PaymentTransactionService> logger, IConfiguration configuration)
+        public PaymentTransactionService(IPeasieApplicationContextService applicationContextService)
         {
-            _logger = logger;
-            _configuration = configuration;
+            _contextService = applicationContextService;
         }   
 
         public PaymentTransactionDTO Process(PaymentTransactionDTO transaction)
         {
-            _logger?.LogDebug("-> PaymentTransactionService::Process");
-            string connectionString = _configuration?.GetConnectionString("PeasieAPIDB")!;
+            _contextService?.Logger?.LogDebug("-> PaymentTransactionService::Process");
+            string connectionString = _contextService?.Configuration?.GetConnectionString("PeasieAPIDB")!;
             var rekeningManager = new RekeningManager(new RekeningRepository(connectionString), new TransactieRepository(connectionString));
             var source = Guid.Parse("3c146461-8b97-4028-8a51-3511113d3e95");
             var rekening = "";
             if (string.IsNullOrEmpty(rekening))
             {
                 transaction.Status = "FAILED";
-                _logger?.LogDebug("<- PaymentTransactionService::Process (FAILED)");
+                _contextService?.Logger?.LogDebug("<- PaymentTransactionService::Process (FAILED)");
                 return transaction;
             }
             else
@@ -34,7 +33,7 @@ namespace RESTLayer.Services
 
             }
             transaction.Status = "COMPLETED";
-            _logger?.LogDebug("<- PaymentTransactionService::Process");
+            _contextService?.Logger?.LogDebug("<- PaymentTransactionService::Process");
             return transaction;
         }
     }

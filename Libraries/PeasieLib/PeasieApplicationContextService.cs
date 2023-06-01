@@ -1,4 +1,5 @@
 ﻿using Flurl.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Peasie.Contracts;
@@ -17,6 +18,7 @@ namespace PeasieLib
     {
         #region Properties
         public ILogger? Logger { get; set; }
+        public IConfiguration? Configuration { get; set; }
         public string? ConnectionString { get; set; }
         public string? PeasieUrl { get; set; }
         public string? FinancialInstituteUrl { get; set; }

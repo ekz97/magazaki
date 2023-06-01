@@ -223,8 +223,6 @@ namespace WebshopApi.Presentation
             // ----------------------
             builder.Services.AddControllers();
 
-
-
             // Add custom services to the container.
             // -------------------------------------
             builder.Services.AddHostedService<StartupHostedService>();
@@ -265,6 +263,7 @@ namespace WebshopApi.Presentation
             var app = builder.Build();
 
             ApplicationContextService.Logger = app.Logger;
+            ApplicationContextService.Configuration = app.Configuration;
 
             // Map the endpoints.
             // ------------------

@@ -17,7 +17,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Peasie\Libraries\PeasieLib\PeasieLib.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\PeasieLib\PeasieLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Peasie.Contracts">
+      <HintPath>..\..\..\Apps\PeasieAPI\bin\Debug\net7.0\Peasie.Contracts.dll</HintPath>
+    </Reference>
+    <Reference Include="PeasieLib">
+      <HintPath>..\..\..\Apps\PeasieAPI\bin\Debug\net7.0\PeasieLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

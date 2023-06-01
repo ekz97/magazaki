@@ -18,7 +18,6 @@ using PeasieLib.Extensions;
 using PeasieLib.Interfaces;
 using PeasieLib.Middleware;
 using RESTLayer.Handlers;
-using RESTLayer.Interfaces;
 using RESTLayer.Services;
 using RESTLayer.Context;
 using SecurityLayer;
@@ -259,7 +258,9 @@ namespace RESTLayer
             // -------------------------------------
             builder.Services.AddSingleton<IPeasieApplicationContextService>(ApplicationContextService);
 
-            builder.Services.AddSingleton<PaymentTransactionService>();
+            // Next service must be constructed ...
+            var paymentTransactionService = new PaymentTransactionService(ApplicationContextService);
+            builder.Services.AddSingleton<PaymentTransactionService>(paymentTransactionService);
 
             builder.Services.AddScoped<IAuthorizationHandler, FinancialInstituteAuthorizationHandler>();
             builder.Services.AddScoped<FinancialInstituteEndpointHandler>();

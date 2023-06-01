@@ -99,7 +99,7 @@ namespace WebshopApi.Infrastructure.Handlers
 
             if (valid)
             {
-                // request payment            
+                applicationContextService?.Logger.LogDebug("Requesting Payment SID...");
                 PaymentResponseDTO? paymentResponseDTO;
                 string? paymentRequestPrivateKeyBeneficiary;
                 {
@@ -127,6 +127,7 @@ namespace WebshopApi.Infrastructure.Handlers
                 }
 
                 // Use the SID to request the payment transaction immediately
+                applicationContextService?.Logger.LogDebug("Sending Payment TRX...");
                 if (paymentResponseDTO != null)
                 {
                     applicationContextService?.Logger.LogDebug($"PaymentSID: {paymentResponseDTO.PaymentSID}");
@@ -162,7 +163,7 @@ namespace WebshopApi.Infrastructure.Handlers
                         accountHolderId: ""
                     );
 
-                    // Encrypt using public key of bank
+                    applicationContextService?.Logger.LogDebug("Encrypting using public key of bank");
                     var json = JsonSerializer.Serialize<PaymentTransactionDTO>(paymentTrx);
                     var encryptedTrx = EncryptionService.EncryptUsingPublicKey(json, paymentResponseDTO.FinancialInstitutePublicKey);
 
@@ -171,37 +172,52 @@ namespace WebshopApi.Infrastructure.Handlers
                         Id = paymentResponseDTO.PaymentSID,
                         Payload = encryptedTrx
                     };
-                    // Encrypt using public key of Peasie session
+
+                    applicationContextService?.Logger.LogDebug("Encrypting using public key of Peasie session");
                     var jsonWrappedTrx = JsonSerializer.Serialize<PeasieRequestDTO>(wrappedTrx);
                     var encrypted = EncryptionService.EncryptUsingPublicKey(jsonWrappedTrx, applicationContextService.Session.SessionResponse.PublicKey);
 
-                    //_logger.LogDebug(sessionSymmetricPwdEnc.HexDump());
-
-                    // Send
+                    applicationContextService?.Logger.LogDebug("Sending TRX...");
                     var peasieRequestDTO = new PeasieRequestDTO { Id = applicationContextService.Session.SessionResponse.SessionGuid.ToString(), Payload = encrypted };
                     var url = applicationContextService.PeasieUrl + "/payment/trx";
                     var reference = url.WithOAuthBearerToken(applicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
 
+                    applicationContextService?.Logger.LogDebug("Receiving TRX response...");
+
                     var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
                     if (string.IsNullOrEmpty(reply.Payload))
+                    {
+                        applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest (payload error)");
                         return false;
+                    }
 
                     var decrypted = EncryptionService.DecryptUsingPrivateKey(reply.Payload, applicationContextService.Session.PrivateKey);
-                    if (string.IsNullOrEmpty(decrypted)) return false;
+                    if (string.IsNullOrEmpty(decrypted))
+                    {
+                        applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest (decryption error)");
+                        return false;
+                    }
                     var paymentTransactionReplyDTO = System.Text.Json.JsonSerializer.Deserialize<PeasieReplyDTO>(decrypted);
 
                     var decryptedTrxResponse = EncryptionService.DecryptUsingPrivateKey(paymentTransactionReplyDTO.Payload, paymentRequestPrivateKeyBeneficiary);
 
-                    //_logger.LogDebug(bankSymmetricPwdDec.HexDump());
+                    if (string.IsNullOrEmpty(decryptedTrxResponse))
+                    {
+                        applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest (TRX decryption error)");
+                        return false;
+                    }
 
                     var paymentTrxResponse = System.Text.Json.JsonSerializer.Deserialize<PaymentTransactionDTO>(decryptedTrxResponse);
 
                     applicationContextService?.Logger.LogDebug($"Payment TRX status: {paymentTrxResponse.Status} ({paymentTrxResponse.Amount.Value} {paymentTrxResponse.Amount.Currency})");
 
+                    applicationContextService?.Logger.LogDebug("Remembering TRX...");
                     // TODO: compare to trx already stored...
 
                     _paymentTransactions[paymentResponseDTO.PaymentSID.ToString()] = new PaymentTrxWrapper() { Request = paymentTrx, Response = paymentResponseDTO };
                     _paymentTransactions[paymentResponseDTO.PaymentSID.ToString()].Updates.Add(paymentTrxResponse);
+
+                    applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest");
                 }
             }
 

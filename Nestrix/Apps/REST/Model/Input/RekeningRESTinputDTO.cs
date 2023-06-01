@@ -11,6 +11,7 @@ public class RekeningRESTinputDTO
 
     [JsonConverter(typeof(StringEnumConverter))]
     public RekeningType RekeningType { get; set; }
+    public string Iban { get; set; }
 
     public decimal KredietLimiet { get; set; }
 }

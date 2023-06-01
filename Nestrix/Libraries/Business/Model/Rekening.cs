@@ -26,9 +26,10 @@ public class Rekening
     }
     
     // Rekening wijzigen
-    public Rekening(Guid id, decimal kredietLimiet)
+    public Rekening(Guid id, string iban, decimal kredietLimiet)
     {
         Rekeningnummer = id;
+        Iban = iban;
         // RekeningType wijzigen toelaten?
         // ZetRekeningType(rekeningType);
         ZetKredietLimiet(kredietLimiet);

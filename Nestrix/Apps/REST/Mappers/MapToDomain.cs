@@ -38,7 +38,7 @@ public static class MapToDomain
     {
         try
         {
-            return new Rekening(rekeningRESTinputDTO.RekeningType, rekeningRESTinputDTO.KredietLimiet, gebruiker);
+            return new Rekening(rekeningRESTinputDTO.RekeningType, rekeningRESTinputDTO.Iban, rekeningRESTinputDTO.KredietLimiet, gebruiker);
         }
         catch (Exception e)
         {

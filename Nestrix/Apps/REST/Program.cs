@@ -371,7 +371,7 @@ namespace RESTLayer
                 if (validToken != null && validToken == true)
                 {
                     // request session
-                    ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Type = "BANK", Designation = "KBC" });
+                    ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Secret = "MijnGeheim", Type = "BANK", Designation = "KBC" });
                 }
             }
             return Results.Ok(null);

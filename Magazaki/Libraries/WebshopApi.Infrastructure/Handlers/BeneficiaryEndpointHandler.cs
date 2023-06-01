@@ -209,13 +209,20 @@ namespace WebshopApi.Infrastructure.Handlers
 
                     var paymentTrxResponse = System.Text.Json.JsonSerializer.Deserialize<PaymentTransactionDTO>(decryptedTrxResponse);
 
-                    applicationContextService?.Logger.LogDebug($"Payment TRX status: {paymentTrxResponse.Status} ({paymentTrxResponse.Amount.Value} {paymentTrxResponse.Amount.Currency})");
+                    applicationContextService?.Logger.LogDebug($"Payment TRX status: {paymentTrxResponse?.Status} (amt: {paymentTrxResponse?.Amount?.Value}, currency: {paymentTrxResponse?.Amount?.Currency})");
 
-                    applicationContextService?.Logger.LogDebug("Remembering TRX...");
-                    // TODO: compare to trx already stored...
+                    var s = paymentResponseDTO.PaymentSID.ToString();
+                    if (paymentTrxResponse != null && !string.IsNullOrEmpty(s))
+                    {
+                        applicationContextService?.Logger.LogDebug("Remembering TRX...");
+                        // TODO: compare to trx already stored...
 
-                    _paymentTransactions[paymentResponseDTO.PaymentSID.ToString()] = new PaymentTrxWrapper() { Request = paymentTrx, Response = paymentResponseDTO };
-                    _paymentTransactions[paymentResponseDTO.PaymentSID.ToString()].Updates.Add(paymentTrxResponse);
+                        _paymentTransactions[s] = new PaymentTrxWrapper() { Request = paymentTrx, Response = paymentResponseDTO };
+                        if (_paymentTransactions.ContainsKey(s))
+                        {
+                            _paymentTransactions[s]?.Updates.Add(paymentTrxResponse);
+                        }
+                    }
 
                     applicationContextService?.Logger.LogDebug("<- BeneficiaryEndpointHandler::MakePaymentRequest");
                 }

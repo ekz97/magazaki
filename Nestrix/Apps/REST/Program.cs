@@ -258,7 +258,9 @@ namespace RESTLayer
             // Add custom services to the container.
             // -------------------------------------
             builder.Services.AddSingleton<IPeasieApplicationContextService>(ApplicationContextService);
+
             builder.Services.AddSingleton<IPaymentTransactionService>();
+
             builder.Services.AddScoped<IAuthorizationHandler, FinancialInstituteAuthorizationHandler>();
             builder.Services.AddScoped<FinancialInstituteEndpointHandler>();
 

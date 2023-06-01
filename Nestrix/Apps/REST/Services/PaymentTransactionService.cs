@@ -10,6 +10,11 @@ namespace RESTLayer.Services
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
 
+        public PaymentTransactionService()
+        {
+
+        }
+
         public PaymentTransactionService(ILogger logger, IConfiguration configuration)
         {
             _logger = logger;
@@ -19,7 +24,7 @@ namespace RESTLayer.Services
         public PaymentTransactionDTO Process(PaymentTransactionDTO transaction)
         {
             _logger?.LogDebug("-> PaymentTransactionService::Process");
-            string connectionString = _configuration.GetConnectionString("PeasieAPIDB")!;
+            string connectionString = _configuration?.GetConnectionString("PeasieAPIDB")!;
             var rekeningManager = new RekeningManager(new RekeningRepository(connectionString), new TransactieRepository(connectionString));
             var source = Guid.Parse("3c146461-8b97-4028-8a51-3511113d3e95");
             var rekening = "";

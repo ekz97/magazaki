@@ -144,7 +144,7 @@ public class RekeningRepository : IRekeningRepository
         }
         catch (Exception e)
         {
-            throw new RekeningRepositoryException("Er is een fout opgetreden bij het ophalen van de rekening.", e);
+            throw new RekeningRepositoryException($"Er is een fout opgetreden bij het ophalen van de rekening voor {id.ToString()}", e);
         }
         finally
         {
@@ -199,7 +199,7 @@ public class RekeningRepository : IRekeningRepository
         }
         catch (Exception e)
         {
-            throw new RekeningRepositoryException("Er is een fout opgetreden bij het ophalen van de rekening.", e);
+            throw new RekeningRepositoryException($"Er is een fout opgetreden bij het ophalen van de rekening voor {email}", e);
         }
         finally
         {

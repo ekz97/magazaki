@@ -41,7 +41,7 @@ namespace RESTLayer.Services
             }
             catch(Exception fromEx)
             {
-                _contextService?.Logger?.LogDebug(fromEx.Message);
+                _contextService?.Logger?.LogDebug($"Source account not found: {fromEx.Message}");
             }
             Rekening? toAccount = null;
             try
@@ -51,12 +51,15 @@ namespace RESTLayer.Services
             }
             catch (Exception toEx)
             {
-                _contextService?.Logger?.LogDebug(toEx.Message);
+                _contextService?.Logger?.LogDebug($"Destination account not found: {toEx.Message}");
             }
 
             // it is possible to send money to an account we do not manage as a bank ... we should verify the existence of the account at the destination bank however
             if (toAccount == null)
+            {
+                _contextService?.Logger?.LogDebug("Creating dummy account...");
                 toAccount = new LogicLayer.Model.Rekening(LogicLayer.Model.RekeningType.Zichtrekening, -1, null);
+            }
 
             if (fromAccount == null || toAccount == null)
             {

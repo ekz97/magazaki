@@ -110,7 +110,7 @@ public class RekeningManager
     {
         if (string.IsNullOrEmpty(email))
         {
-            throw new RekeningManagerException("Email is leeg");
+            throw new RekeningManagerException("Email is niet opgegeven");
         }
         try
         {
@@ -119,7 +119,7 @@ public class RekeningManager
         }
         catch (Exception e)
         {
-            throw new RekeningManagerException("Er is een fout opgetreden bij het ophalen van de rekening.", e);
+            throw new RekeningManagerException($"Er is een fout opgetreden bij het ophalen van de rekening voor {email}", e);
         }
     }
 

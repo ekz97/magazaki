@@ -219,8 +219,19 @@ public class PeasieEndpointHandler
                 return Results.BadRequest();
             }
 
+            if(paymentRequest.SessionDetails == null || paymentRequest.SessionDetails.User == null || string.IsNullOrEmpty(paymentRequest.SessionDetails.User.Email))
+            {
+                applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentRequest (session details not avail)");
+                return Results.BadRequest();
+            }
+
             // we encrypt for bank
             // search bank session: email
+            applicationContextService?.Logger.LogDebug($"Searching email: {paymentRequest.SessionDetails.User.Email}");
+            foreach(var s in dataManagerService.Sessions.Values)
+            {
+                applicationContextService?.Logger.LogDebug($"{s.SessionDetails?.User?.Email}");
+            }
             var bankSession = dataManagerService.Sessions.Values.Where(s => s.SessionResponse != null && s.SessionDetails.User.Email == paymentRequest.SessionDetails.User.Email && s.SessionDetails.User.Type.ToLowerInvariant() == "bank").FirstOrDefault();
 
             if (bankSession == null)

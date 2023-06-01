@@ -95,7 +95,7 @@ public class RekeningManager
         }
     }
 
-    public async Task<Rekening?> RekeningOphalenAsync(Guid id, int depth)
+    public async Task<Rekening?> RekeningOphalenAsync(Guid id, int depth = 0)
     {
         try
         {
@@ -118,7 +118,7 @@ public class RekeningManager
         }
     }
 
-    public async Task<bool> TransferMoneyAsync(Rekening from, Rekening to, decimal amount, string mededeling = null)
+    public async Task<bool> TransferMoneyAsync(Rekening from, Rekening to, decimal amount, string? mededeling = null)
     {
         var date = DateTime.Now;
         if (from == null || to == null)

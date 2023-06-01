@@ -237,26 +237,27 @@ namespace WebshopApi.Presentation
             builder.Services.AddHangfire(configuration => configuration.UseMemoryStorage()).AddHangfireServer();
             //JobStorage.Current = new MemoryStorage();
 
-            //if (builder.Environment.IsDevelopment())
-            //{
+            builder.Services.AddAutoMapper(typeof(MappingConfig));
+            builder.Services.AddScoped<IPasswordHasher<Domain.Models.Customer>, PasswordHasher<Domain.Models.Customer>>();
+            builder.Services.AddScoped<ICategoryRepository, EfCategoryRepository>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<ICustomerRepository, EfCustomerRepository>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IOrderRepository, EfOrderRepository>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IProductRepository, EfProductRepository>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IOrderLineRepository, EfOrderLineRepository>();
+            builder.Services.AddScoped<IOrderLineService, OrderLineService>();
+            builder.Services.AddScoped<IPriceTypeRepository, EfPriceTypeRepository>();
+            builder.Services.AddScoped<IPriceTypeService, PriceTypeService>();
+            builder.Services.AddScoped<IStoreRepository, EfStoreRepository>();
+            builder.Services.AddScoped<IStoreService, StoreService>();
+
+            if (builder.Environment.IsDevelopment())
+            {
                 // Move services you want to use in development only here.
-                builder.Services.AddAutoMapper(typeof(MappingConfig));
-                builder.Services.AddScoped<IPasswordHasher<Domain.Models.Customer>, PasswordHasher<Domain.Models.Customer>>();
-                builder.Services.AddScoped<ICategoryRepository, EfCategoryRepository>();
-                builder.Services.AddScoped<ICategoryService, CategoryService>();
-                builder.Services.AddScoped<ICustomerRepository, EfCustomerRepository>();
-                builder.Services.AddScoped<ICustomerService, CustomerService>();
-                builder.Services.AddScoped<IOrderRepository, EfOrderRepository>();
-                builder.Services.AddScoped<IOrderService, OrderService>();
-                builder.Services.AddScoped<IProductRepository, EfProductRepository>();
-                builder.Services.AddScoped<IProductService, ProductService>();
-                builder.Services.AddScoped<IOrderLineRepository, EfOrderLineRepository>();
-                builder.Services.AddScoped<IOrderLineService, OrderLineService>();
-                builder.Services.AddScoped<IPriceTypeRepository, EfPriceTypeRepository>();
-                builder.Services.AddScoped<IPriceTypeService, PriceTypeService>();
-                builder.Services.AddScoped<IStoreRepository, EfStoreRepository>();
-                builder.Services.AddScoped<IStoreService, StoreService>();
-            //}
+            }
 
             // Add the app to the container.
             // -----------------------------
@@ -359,7 +360,7 @@ namespace WebshopApi.Presentation
                 // request authentication token
                 ApplicationContextService?.GetAuthenticationToken();
                 // request session
-                bool? sessionOk = ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Secret = "MijnGeheim", Type = "SHOP", Designation = "Colruyt" });
+                bool? sessionOk = ApplicationContextService?.GetSession(new UserDTO() { Email = "glenn.colombie@student.hogent.be", Secret = "Nestrix123", Type = "SHOP", Designation = "Colruyt" });
             }
             else if (ApplicationContextService?.DemoMode == true)
             {

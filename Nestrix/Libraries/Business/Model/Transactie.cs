@@ -12,7 +12,7 @@ public class Transactie
     public TransactieType TransactieType { get; set; }
     
     // Nieuwe transactie aanmaken
-    public Transactie(decimal bedrag, string mededeling, Rekening rekening, TransactieType transactieType)
+    public Transactie(decimal bedrag, string? mededeling, Rekening rekening, TransactieType transactieType)
     {
         Id = Guid.NewGuid();
         ZetBedrag(bedrag);
@@ -22,7 +22,7 @@ public class Transactie
     }
 
     // Transactie uit database halen// Controles zijn niet nodig
-    public Transactie(Guid id, DateTime datum, decimal bedrag, string mededeling, Rekening rekening,
+    public Transactie(Guid id, DateTime datum, decimal bedrag, string? mededeling, Rekening rekening,
         TransactieType transactieType)
     {
         Id = id;

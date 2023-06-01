@@ -344,7 +344,7 @@ namespace BeneficiaryAPI
                 if (validToken != null && validToken == true)
                 {
                     // request session
-                    var validSession = ApplicationContextService?.GetSession(new UserDTO() { Email = "luc.vervoort@hogent.be", Secret = "MijnGeheim", Type = "SHOP", Designation = "Colruyt" });
+                    var validSession = ApplicationContextService?.GetSession(new UserDTO() { Email = "glenn.colombie@student.hogent.be", Secret = "Nestrix123", Type = "SHOP", Designation = "Colruyt" });
                     if (validSession != null && validSession == true)
                         ok = true;
                 }

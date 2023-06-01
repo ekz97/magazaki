@@ -4,6 +4,6 @@ namespace RESTLayer.Interfaces
 {
     public interface IPaymentTransactionService
     {
-        PaymentTransactionDTO Process(PaymentTransactionDTO transaction);
+        PaymentTransactionDTO? Process(PaymentTransactionDTO transaction);
     }
 }

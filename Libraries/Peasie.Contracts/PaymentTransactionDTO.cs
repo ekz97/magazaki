@@ -1,4 +1,6 @@
 ﻿using System.Text.Json.Serialization;
+using System.Transactions;
+using System.Xml.Linq;
 using Peasie.Contracts.Interfaces;
 
 namespace Peasie.Contracts
@@ -151,6 +153,50 @@ namespace Peasie.Contracts
 
         [JsonPropertyName("accountHolderId")]
         public string? AccountHolderId { get; }
+
+        /*
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+        */
+
+        public override string? ToString()
+        {
+            return "Id: " + Id +
+                   ", ShortId: " + ShortId +
+                   ", AccountId: " + AccountId +
+                   ", CreatedDate: " + CreatedDate +
+                   ", UpdatedDate: " + UpdatedDate +
+                   ", PaymentDate: " + PaymentDate +
+                   ", TransactionId: " + TransactionId +
+                   ", TransactionCategory: " + TransactionCategory +
+                   ", PaymentType: " + PaymentType +
+                   ", Type: " + Type +
+                   ", SourceInfo: " + SourceInfo +
+                   ", DestinationInfo: " + DestinationInfo +
+                   ", Source: " + Source +
+                   ", Destination: " + Destination +
+                   ", TotalAmount: " + TotalAmount +
+                   ", Amount: " + Amount +
+                   ", Fee: " + Fee +
+                   ", RunningBalance: " + RunningBalance +
+                   ", BuyAmount: " + BuyAmount +
+                   ", FxRate: " + FxRate +
+                   ", MidMarketRate: " + MidMarketRate +
+                   ", FixedSide: " + FixedSide +
+                   ", Status: " + Status +
+                   ", FailureReason: " + FailureReason +
+                   ", Comment: " + Comment +
+                   ", TransactionReference: " + TransactionReference +
+                   ", ReferenceAmount: " + ReferenceAmount +
+                   ", AccountHolderId: " + AccountHolderId;                    
+        }
     }
 
     /*

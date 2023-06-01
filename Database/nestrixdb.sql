@@ -344,6 +344,7 @@ DROP TABLE IF EXISTS `Rekening`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Rekening` (
   `Rekeningnummer` varchar(45) NOT NULL,
+  `IBAN` varchar(16) NOT NULL,
   `GebruikerId` varchar(45) NOT NULL,
   `RekeningType` varchar(256) NOT NULL,
   `Krediet` decimal(10,2) NOT NULL,
@@ -365,7 +366,7 @@ CREATE TABLE `Rekening` (
 
 LOCK TABLES `Rekening` WRITE;
 /*!40000 ALTER TABLE `Rekening` DISABLE KEYS */;
-INSERT INTO `Rekening` VALUES ('3c146461-8b97-4028-8a51-3511113d3e95','dc8813fe-8ca6-4c4a-b777-f510949f8f85','Zichtrekening',0.00,10000.00,NULL,1),('c94d0a24-d0f8-45fa-a9bd-8bc2a99cbd76','dc8813fe-8ca6-4c4a-b777-f510949f8f85','Zichtrekening',500.00,0.00,NULL,1);
+INSERT INTO `Rekening` VALUES ('3c146461-8b97-4028-8a51-3511113d3e95','BE68 5390 0754 7034', 'dc8813fe-8ca6-4c4a-b777-f510949f8f85','Zichtrekening',0.00,10000.00,NULL,1),('c94d0a24-d0f8-45fa-a9bd-8bc2a99cbd76','dc8813fe-8ca6-4c4a-b777-f510949f8f85','Zichtrekening',500.00,0.00,NULL,1);
 /*!40000 ALTER TABLE `Rekening` ENABLE KEYS */;
 UNLOCK TABLES;
 

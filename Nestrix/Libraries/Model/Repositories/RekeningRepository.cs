@@ -8,15 +8,15 @@ namespace DataLayer.Repositories;
 
 public class RekeningRepository : IRekeningRepository
 {
-    private string _connectionString;
+    private readonly string _connectionString;
     private readonly TransactieRepository _transactieRepository;
-    private readonly GebruikerRepository _gebruikerRepository;
+    //private readonly GebruikerRepository _gebruikerRepository;
 
     public RekeningRepository(string connectionString)
     {
         _connectionString = connectionString;
         _transactieRepository = new(_connectionString);
-        _gebruikerRepository = new(_connectionString);
+        //_gebruikerRepository = new(_connectionString);
     }
 
     public async Task RekeningToevoegenAsync(Rekening rekening)

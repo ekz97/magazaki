@@ -13,9 +13,10 @@ public class Rekening
     public Gebruiker Gebruiker { get; set; }
     
     // Nieuwe rekening aanmaken
-    public Rekening(RekeningType rekeningType, decimal kredietLimiet, Gebruiker? gebruiker = null)
+    public Rekening(RekeningType rekeningType, string iban, decimal kredietLimiet, Gebruiker? gebruiker = null)
     {
         Rekeningnummer = Guid.NewGuid();
+        Iban = iban;
         ZetRekeningType(rekeningType);
         ZetKredietLimiet(kredietLimiet);
         if(gebruiker != null)

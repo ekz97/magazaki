@@ -10,7 +10,7 @@ const SearchPage = () => {
     const fetchProducten = async () => {
       try {
         const response = await Axios.get(
-          `http://localhost:5298/api/Products/${term}`
+          `http://vichogent.be:40075/api/Products/${term}`
         );
         setProducten(response.data);
       } catch (error) {

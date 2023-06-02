@@ -33,9 +33,9 @@ dotnet ef database update --context ApplicationDbContext
 * User: vicuser
 * Portmapping:
     * vichogent.be:40070/tcp -> localhost:22/tcp => SSH
-    * vichogent.be:40072/tcp -> localhost:3000/tcp
-    * vichogent.be:40073/tcp -> localhost:3001/tcp
-    * vichogent.be:40074/tcp -> localhost:3002/tcp
+    * vichogent.be:40072/tcp -> localhost:3000/tcp => stagedb
+    * vichogent.be:40073/tcp -> localhost:3001/tcp => KBC
+    * vichogent.be:40074/tcp -> localhost:3002/tcp => colruyt
     * vichogent.be:40075/tcp -> localhost:3003/tcp => Store
     * vichogent.be:40076/tcp -> localhost:3004/tcp => Bank
     * vichogent.be:40077/tcp -> localhost:3005/tcp => PeasieAPI

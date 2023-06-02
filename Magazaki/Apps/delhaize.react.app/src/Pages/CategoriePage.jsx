@@ -12,7 +12,7 @@ const CategoriePage = () => {
     const fetchProducten = async () => {
       try {
         const response = await Axios.get(
-          `http://localhost:5298/api/Category/${id}/Products`
+          `http://vichogent.be:40075/api/Category/${id}/Products`
         );
         setProducten(response.data);
       } catch (error) {
@@ -24,7 +24,7 @@ const CategoriePage = () => {
     const fetchCategorie = async () => {
       try {
         const response = await Axios.get(
-          `http://localhost:5298/api/Category/${id}`
+          `http://vichogent.be:40075/api/Category/${id}`
         );
         setCategorie(response.data);
       } catch (error) {

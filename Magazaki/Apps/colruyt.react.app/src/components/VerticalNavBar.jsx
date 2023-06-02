@@ -10,7 +10,7 @@ const VerticalNavBar = ({ categorie }) => {
   useEffect(() => {
     const fetchCategorieen = async () => {
       try {
-        const response = await Axios.get('http://localhost:5298/api/Category')
+          const response = await Axios.get('http://vichogent.be:40075/api/Category')
         setCategorieen(response.data)
       } catch (error) {
         console.log(error)

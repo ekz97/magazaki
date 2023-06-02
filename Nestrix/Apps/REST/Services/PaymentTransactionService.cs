@@ -51,6 +51,10 @@ namespace RESTLayer.Services
                 }
                 catch(Exception addressEx)
                 {
+                    _contextService?.Logger?.LogDebug($"Exception fetching address: {addressEx.Message}");
+                }
+                if (address == null)
+                {
                     address = new(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE");
                     addressManager.AdresToevoegenAsync(address).Wait();
                 }
@@ -61,6 +65,10 @@ namespace RESTLayer.Services
                     user = userManager.GebruikerOphalenAsync("luc.vervoort@hogent.be").Result;
                 }
                 catch(Exception userEx)
+                {
+                    _contextService?.Logger?.LogDebug($"Exception fetching user: {userEx.Message}");
+                }
+                if(user == null)
                 {
                     user = new Gebruiker(Guid.NewGuid(), "FN", "VN", "luc.vervoort@hogent.be", "+32474437788", "CODE", "03/06/1980", address);
                     userManager.GebruikerToevoegenAsync(user).Wait();
@@ -82,12 +90,19 @@ namespace RESTLayer.Services
                 Adres? address = null;
                 try
                 {
+                    _contextService?.Logger?.LogDebug($"Fetching address...");
                     address = addressManager.AdresOphalenAsync("ST", "01", "0000", "GEM", "BE").Result;
                 }
                 catch (Exception addressEx)
                 {
+                    _contextService?.Logger?.LogDebug($"Exception fetching address: {addressEx.Message}");
+                }
+                if(address == null)
+                {
+                    _contextService?.Logger?.LogDebug($"Adress not found, creating...");
                     address = new(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE");
                     addressManager.AdresToevoegenAsync(address).Wait();
+                    _contextService?.Logger?.LogDebug($"Address added");
                 }
                 var userManager = new GebruikerManager(new GebruikerRepository(connectionString));
                 Gebruiker? user = null;
@@ -96,6 +111,10 @@ namespace RESTLayer.Services
                     user = userManager.GebruikerOphalenAsync("luc.vervoort@hogent.be").Result;
                 }
                 catch (Exception userEx)
+                {
+                    _contextService?.Logger?.LogDebug($"Exception fetching user: {userEx.Message}");
+                }
+                if (user == null)
                 {
                     user = new Gebruiker(Guid.NewGuid(), "FN", "VN", "luc.vervoort@hogent.be", "+32474437788", "CODE", "03/06/1980", address);
                     userManager.GebruikerToevoegenAsync(user).Wait();

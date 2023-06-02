@@ -43,15 +43,26 @@ namespace RESTLayer.Services
             {
                 _contextService?.Logger?.LogDebug($"Source account not found for {paymentTransaction.SourceInfo.Identifier}: {fromEx.Message}");
  
+                var addressManager = new AdresManager(new AdresRepository(connectionString));
+                Adres? address = null;
+                try
+                {
+                    address = addressManager.AdresOphalenAsync("ST", "01", "0000", "GEM", "BE").Result;
+                }
+                catch(Exception addressEx)
+                {
+                    address = new(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE");
+                    addressManager.AdresToevoegenAsync(address).Wait();
+                }
                 var userManager = new GebruikerManager(new GebruikerRepository(connectionString));
                 Gebruiker? user = null;
                 try
                 {
-                    user = userManager.GebruikerOphalenAsync(paymentTransaction.SourceInfo.Identifier).Result;
+                    user = userManager.GebruikerOphalenAsync("luc.vervoort@hogent.be").Result;
                 }
                 catch(Exception userEx)
                 {
-                    user = new Gebruiker(Guid.NewGuid(), "FN", "VN", "luc.vervoort@hogent.be", "+32474437788", "CODE", "03/06/1980", new Adres(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE"));
+                    user = new Gebruiker(Guid.NewGuid(), "FN", "VN", "luc.vervoort@hogent.be", "+32474437788", "CODE", "03/06/1980", address);
                     userManager.GebruikerToevoegenAsync(user).Wait();
                 }
                 fromAccount = new Rekening(RekeningType.Zichtrekening, paymentTransaction.SourceInfo.Identifier, 5000, user);
@@ -67,11 +78,29 @@ namespace RESTLayer.Services
             {
                 _contextService?.Logger?.LogDebug($"Destination account not found for {paymentTransaction.DestinationInfo.Identifier}: {toEx.Message}");
 
+                var addressManager = new AdresManager(new AdresRepository(connectionString));
+                Adres? address = null;
+                try
+                {
+                    address = addressManager.AdresOphalenAsync("ST", "01", "0000", "GEM", "BE").Result;
+                }
+                catch (Exception addressEx)
+                {
+                    address = new(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE");
+                    addressManager.AdresToevoegenAsync(address).Wait();
+                }
                 var userManager = new GebruikerManager(new GebruikerRepository(connectionString));
                 Gebruiker? user = null;
-                user = new Gebruiker(Guid.NewGuid(), "FN", "VN", "luc.vervoort@hogent.be", "+32474437788", "CODE", "03/06/1980", new Adres(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE"));
-                userManager.GebruikerToevoegenAsync(user).Wait();
-                toAccount = new Rekening(RekeningType.Zichtrekening, paymentTransaction.SourceInfo.Identifier, 5000, user);
+                try
+                {
+                    user = userManager.GebruikerOphalenAsync("luc.vervoort@hogent.be").Result;
+                }
+                catch (Exception userEx)
+                {
+                    user = new Gebruiker(Guid.NewGuid(), "FN", "VN", "luc.vervoort@hogent.be", "+32474437788", "CODE", "03/06/1980", address);
+                    userManager.GebruikerToevoegenAsync(user).Wait();
+                }
+                toAccount = new Rekening(Guid.NewGuid(), paymentTransaction.DestinationInfo.Identifier, RekeningType.Zichtrekening, 5000, 5000, new List<Transactie>(), user);
                 rekeningManager.RekeningToevoegenAsync(toAccount).Wait();
             }
 

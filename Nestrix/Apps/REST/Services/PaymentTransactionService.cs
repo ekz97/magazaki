@@ -47,6 +47,7 @@ namespace RESTLayer.Services
                 Adres? address = null;
                 try
                 {
+                    _contextService?.Logger?.LogDebug($"Fetching address...");
                     address = addressManager.AdresOphalenAsync("ST", "01", "0000", "GEM", "BE").Result;
                 }
                 catch(Exception addressEx)
@@ -55,6 +56,7 @@ namespace RESTLayer.Services
                 }
                 if (address == null)
                 {
+                    _contextService?.Logger?.LogDebug($"Creating address...");
                     address = new(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE");
                     addressManager.AdresToevoegenAsync(address).Wait();
                 }
@@ -62,7 +64,8 @@ namespace RESTLayer.Services
                 Gebruiker? user = null;
                 try
                 {
-                    user = userManager.GebruikerOphalenAsync("luc.vervoort@hogent.be").Result;
+                    _contextService?.Logger?.LogDebug($"Fetching user {paymentTransaction.SourceInfo.Identifier}...");
+                    user = userManager.GebruikerOphalenAsync(paymentTransaction.SourceInfo.Identifier).Result;
                 }
                 catch(Exception userEx)
                 {
@@ -71,11 +74,11 @@ namespace RESTLayer.Services
                 if(user == null)
                 {
                     _contextService?.Logger?.LogDebug($"Adding user...");
-                    user = new Gebruiker(Guid.NewGuid(), "FN", "VN", "luc.vervoort@hogent.be", "+32474437788", "CODE", "03/06/1980", address);
+                    user = new Gebruiker(Guid.NewGuid(), "FN", "VN", paymentTransaction.SourceInfo.Identifier, "+32474437788", "CODE", "03/06/1980", address);
                     userManager.GebruikerToevoegenAsync(user).Wait();
                 }
                 _contextService?.Logger?.LogDebug($"Adding account...");
-                fromAccount = new Rekening(RekeningType.Zichtrekening, paymentTransaction.SourceInfo.Identifier, 5000, user);
+                fromAccount = new Rekening(Guid.NewGuid(), "BE68539007547034", RekeningType.Zichtrekening, 5000, 5000, new List<Transactie>(), user);
                 rekeningManager.RekeningToevoegenAsync(fromAccount).Wait();
             }
             Rekening? toAccount = null;

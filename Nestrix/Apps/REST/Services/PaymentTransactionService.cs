@@ -44,7 +44,7 @@ namespace RESTLayer.Services
                 _contextService?.Logger?.LogDebug($"Source account not found: {fromEx.Message}");
                 var userManager = new GebruikerManager(new GebruikerRepository(connectionString));
                 var user = userManager.GebruikerOphalenAsync(paymentTransaction.SourceInfo.Identifier).Result;
-                fromAccount = new Rekening(RekeningType.Zichtrekening, "BE68539007547034", 5000, user);
+                fromAccount = new Rekening(RekeningType.Zichtrekening, paymentTransaction.SourceInfo.Identifier, 5000, user);
                 rekeningManager.RekeningToevoegenAsync(fromAccount).Wait();
             }
             Rekening? toAccount = null;
@@ -63,6 +63,7 @@ namespace RESTLayer.Services
             {
                 _contextService?.Logger?.LogDebug("Creating dummy account...");
                 toAccount = new LogicLayer.Model.Rekening(LogicLayer.Model.RekeningType.Zichtrekening, paymentTransaction.DestinationInfo.Identifier, 5000, new Gebruiker(paymentTransaction.DestinationInfo.Type, "", "", "", DateTime.Now, new Adres(), Guid.NewGuid()));
+                rekeningManager.RekeningToevoegenAsync(toAccount).Wait();
             }
 
             if (fromAccount == null || toAccount == null)

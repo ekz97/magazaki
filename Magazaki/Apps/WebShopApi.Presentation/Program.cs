@@ -341,7 +341,10 @@ namespace WebshopApi.Presentation
             ApplicationContextService?.Logger?.LogDebug("-> WebshopApi.Presentation::EveryMinute");
             var ok = true;
             if (ApplicationContextService?.AuthenticationToken == null || ApplicationContextService.Session == null)
+            {
+                ApplicationContextService?.Logger?.LogDebug("Authentication token or session reference not found");
                 ok = false;
+            }
             else
             {
                 var sessionVerificationDTO = new SessionVerificationRequestDTO();
@@ -351,9 +354,11 @@ namespace WebshopApi.Presentation
                 var url = ApplicationContextService.PeasieUrl + "/session/assert";
                 try
                 {
+                    ApplicationContextService?.Logger?.LogDebug("Verifying session...");
                     var reference = url.WithOAuthBearerToken(ApplicationContextService.AuthenticationToken).PostJsonAsync(peasieRequestDTO).Result;
                     if (reference.ResponseMessage.StatusCode != System.Net.HttpStatusCode.OK)
                     {
+                        ApplicationContextService?.Logger?.LogDebug("Could not verify session");
                         ok = false;
                     }
                 }
@@ -361,7 +366,7 @@ namespace WebshopApi.Presentation
                 {
                     if (ApplicationContextService != null)
                     {
-                        ApplicationContextService.Logger?.LogError(ex.Message);
+                        ApplicationContextService.Logger?.LogError($"Resetting authentication token and session reference: {ex.Message}");
                         ApplicationContextService.AuthenticationToken = null;
                         ApplicationContextService.Session = null;
                     }
@@ -370,18 +375,18 @@ namespace WebshopApi.Presentation
             }
             if (!ok)
             {
-                ApplicationContextService?.Logger?.LogDebug("WebshopApi.Presentation::EveryMinute requesting token and session");
-                // request authentication token
+                ApplicationContextService?.Logger?.LogDebug("Requesting new authentication token...");
                 ApplicationContextService?.GetAuthenticationToken();
-                // request session
+                ApplicationContextService?.Logger?.LogDebug("Requesting new session...");
                 bool? sessionOk = ApplicationContextService?.GetSession(new UserDTO() { Email = "glenn.colombie@student.hogent.be", Secret = "Nestrix123", Type = "SHOP", Designation = "Colruyt" });
+                ok = (ApplicationContextService?.AuthenticationToken != null && ApplicationContextService.Session != null);
             }
-            else if (ApplicationContextService?.DemoMode == true)
+            if (ok && ApplicationContextService?.DemoMode == true)
             {
+                ApplicationContextService?.Logger?.LogDebug("Sending payment request (demo mode is active)");
                 try
                 {
-                    ApplicationContextService?.Logger?.LogDebug("Sending payment request (demo mode is active)");
-                    BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { IBAN = "BE68539007547999", Amount = 50, Currency = "EUR", Comment = $"Ticket {Guid.NewGuid()}" });
+                    BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { IBAN = "BE68539007547999", Amount = 50, Currency = "EUR", Comment = $"Ticket {Guid.NewGuid().ToString()}" });
                 }
                 catch(Exception e)
                 {

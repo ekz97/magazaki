@@ -2,6 +2,10 @@ nohup ./StartPeasieAPI.sh > PeasieAPI.out 2>&1 &
 nohup ./StartMagazakiAPI.sh > MagazakiAPI.out 2>&1 &
 nohup ./StartNestrixAPI.sh > NestrixAPI.out 2>&1 &
 
+pkill -9 -f Peasie
+pkill -9 -f Magazaki
+pkill -9 -f Nestrix
+
 Don't forget to bind to 10.11.0.44 if you want remote access; also for mysql, see /etc/mysql/mysql.conf.d/mysqld.cnf (instead of 127.0.0.1)
 For mysql, better: 0.0.0.0
 /etc/init.d/mysql restart

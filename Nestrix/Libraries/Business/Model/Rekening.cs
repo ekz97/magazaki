@@ -63,7 +63,7 @@ public class Rekening
     {
         if (kredietLimiet < 0)
         {
-            throw new RekeningException($"KredietLimiet {Gebruiker.Email} {Iban} ({RekeningType}) mag niet negatief zijn: {KredietLimiet} (saldo: {Saldo})");
+            throw new RekeningException($"KredietLimiet {Gebruiker?.Email} {Iban} ({RekeningType}) mag niet negatief zijn: {KredietLimiet} (saldo: {Saldo})");
         }
         
         KredietLimiet = kredietLimiet;

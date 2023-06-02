@@ -172,7 +172,7 @@ public class RekeningManager
             Datum = date
         };
 
-        using var transaction = new TransactionScope();
+        using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         try
         {
             PerformTransfer(from, to, amount, transactie, transactieOntvangen);

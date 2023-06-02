@@ -359,7 +359,7 @@ namespace BeneficiaryAPI
                 {
                     ApplicationContextService?.Logger?.LogDebug("DEMO mode: requesting payment");
 
-                    BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { Amount = 50, Currency = "EUR" });
+                    BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { IBAN = "BE68539007547999", Amount = 50, Currency = "EUR", Comment = $"Ticket {Guid.NewGuid()}" });
                 }
             }
             else if(ApplicationContextService?.DemoMode == true)

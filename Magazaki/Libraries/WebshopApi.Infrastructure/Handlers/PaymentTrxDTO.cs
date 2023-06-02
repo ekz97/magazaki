@@ -5,6 +5,10 @@ namespace WebshopApi.Infrastructure.Handlers
     public class PaymentTrxDTO
     {
         [Required]
+        [MaxLength(16)]
+        public string? IBAN { get; set; }
+
+        [Required]
         public string? TransactionId { get; set; }
 
         [Required]

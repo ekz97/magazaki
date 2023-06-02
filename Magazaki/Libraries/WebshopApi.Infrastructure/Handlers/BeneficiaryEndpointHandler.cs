@@ -147,7 +147,7 @@ namespace WebshopApi.Infrastructure.Handlers
                             paymentType: "",
                             type: "",
                             sourceInfo: new SourceInfoDTO(type: "BANK", identifier: applicationContextService.Session.SessionDetails.User.Email, internalAccountId: ""), 
-                            destinationInfo: new DestinationInfoDTO(type: "SHOP", identifier: applicationContextService.Session.SessionDetails.User.Email),
+                            destinationInfo: new DestinationInfoDTO(type: "SHOP", identifier: paymentParameters.IBAN),
                             source: null,
                             destination: applicationContextService.Session.SessionDetails.User.Type,
                             totalAmount: new AmountDTO(paymentParameters.Amount, paymentParameters.Currency),

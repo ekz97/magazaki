@@ -378,7 +378,7 @@ namespace WebshopApi.Presentation
             }
             else if (ApplicationContextService?.DemoMode == true)
             {
-                BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { Amount = 50, Currency = "EUR" });
+                BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { IBAN = "BE68539007547999", Amount = 50, Currency = "EUR", Comment = $"Ticket {Guid.NewGuid()}" });
             }
             ApplicationContextService?.Logger?.LogDebug("<- WebshopApi.Presentation::EveryMinute");
             return Results.Ok(null);

@@ -5,6 +5,10 @@ namespace BeneficiaryAPI.Handlers
     public class PaymentTrxDTO
     {
         [Required]
+        [MaxLength(16)]
+        string? IBAN { get; set; }
+
+        [Required]
         public string? TransactionId { get; set; }
 
         [Required]

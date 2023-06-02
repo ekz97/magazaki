@@ -41,16 +41,18 @@ namespace RESTLayer.Services
             }
             catch(Exception fromEx)
             {
-                _contextService?.Logger?.LogDebug($"Source account not found: {fromEx.Message}");
+                _contextService?.Logger?.LogDebug($"Source account not found for {paymentTransaction.SourceInfo.Identifier}: {fromEx.Message}");
+                /*
                 var userManager = new GebruikerManager(new GebruikerRepository(connectionString));
                 var user = userManager.GebruikerOphalenAsync(paymentTransaction.SourceInfo.Identifier).Result;
                 fromAccount = new Rekening(RekeningType.Zichtrekening, paymentTransaction.SourceInfo.Identifier, 5000, user);
                 rekeningManager.RekeningToevoegenAsync(fromAccount).Wait();
+                */
             }
             Rekening? toAccount = null;
             try
             {
-                toAccount = rekeningManager.RekeningOphalenViaEmailAsync(paymentTransaction.DestinationInfo.Identifier).Result;
+                toAccount = rekeningManager.RekeningOphalenViaIBANAsync(paymentTransaction.DestinationInfo.Identifier).Result;
                 _contextService?.Logger?.LogDebug($"Destination account found for {paymentTransaction.DestinationInfo.Identifier}");
             }
             catch (Exception toEx)

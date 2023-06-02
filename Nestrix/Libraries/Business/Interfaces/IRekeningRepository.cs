@@ -9,4 +9,5 @@ public interface IRekeningRepository
     Task RekeningWijzigenAsync(Guid id, Rekening rekening);
     Task<Rekening?> RekeningOphalenAsync(Guid id, int depth);
     Task<Rekening?> RekeningOphalenViaEmailAsync(string email, int depth);
+    Task<Rekening?> RekeningOphalenViaIBANAsync(string iban, int depth);
 }

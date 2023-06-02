@@ -247,4 +247,59 @@ public class RekeningRepository : IRekeningRepository
             await connection.CloseAsync();
         }
     }
+
+    public async Task<Rekening?> RekeningOphalenViaIBANAsync(string iban, int depth)
+    {
+        var connection = new MySqlConnection(_connectionString);
+        try
+        {
+            const string query = "SELECT r.Rekeningnummer, r.IBAN, r.GebruikerId, r.RekeningType, r.Krediet, r.Saldo, r.TransactieId, r.is_visible, g.Familienaam, g.Voornaam, g.Email, g.Geboortedatum, g.Telefoonnummer, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land, t.Bedrag, t.Datum, t.RekeningnummerBegunstigde, t.TransactieType, t.Mededeling FROM Rekening r JOIN Gebruiker g on g.Id = r.GebruikerId JOIN Adres a on a.Id = g.AdresId LEFT JOIN Transactie t on t.Id = r.TransactieId WHERE g.IBAN = @iban";
+            await using var command = connection.CreateCommand();
+            command.CommandText = query;
+            command.Parameters.AddWithValue("@email", iban);
+            await connection.OpenAsync();
+            await using var reader = command.ExecuteReader();
+            if (await reader.ReadAsync())
+            {
+                var rekeningnummer = reader.GetGuid("Rekeningnummer");
+                var email = reader.GetString("Email");
+                var gebruikerId = reader.GetGuid("GebruikerId");
+                var rekeningType = Enum.Parse<RekeningType>(reader.GetString("RekeningType"));
+                var krediet = reader.GetDecimal("Krediet");
+                var saldo = reader.GetDecimal("Saldo");
+                var familienaam = reader.GetString("Familienaam");
+                var voornaam = reader.GetString("Voornaam");
+                var mail = reader.GetString("Email");
+                var geboortedatum = reader.GetDateTime("Geboortedatum");
+                var telefoonnummer = reader.GetString("Telefoonnummer");
+                var straat = reader.GetString("Straat");
+                var huisnummer = reader.GetString("Huisnummer");
+                var gemeente = reader.GetString("Gemeente");
+                var postcode = reader.GetString("Postcode");
+                var land = reader.GetString("Land");
+                var adres = new Adres(straat, huisnummer, postcode, postcode, land);
+                var gebruiker = new Gebruiker(familienaam, voornaam, mail, telefoonnummer, geboortedatum, adres,
+                    gebruikerId);
+                var transacties = new List<Transactie>();
+                if (depth > 0)
+                {
+                    transacties = await RekeningTransactiesOphalenAsync(rekeningnummer, depth);
+                }
+                var rekening = new Rekening(rekeningnummer, iban, rekeningType, krediet, saldo, transacties, gebruiker);
+                return rekening;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception e)
+        {
+            throw new RekeningRepositoryException($"Er is een fout opgetreden bij het ophalen van de rekening voor {iban}", e);
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
+    }
 }

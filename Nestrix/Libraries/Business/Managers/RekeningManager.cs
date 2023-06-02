@@ -123,6 +123,23 @@ public class RekeningManager
         }
     }
 
+    public async Task<Rekening?> RekeningOphalenViaIBANAsync(string iban, int depth = 0)
+    {
+        if (string.IsNullOrEmpty(iban))
+        {
+            throw new RekeningManagerException("IBAN is niet opgegeven");
+        }
+        try
+        {
+            var rekeningDb = await _rekeningRepository.RekeningOphalenViaIBANAsync(iban, 0) ?? throw new RekeningManagerException("Rekening bestaat niet");
+            return await _rekeningRepository.RekeningOphalenViaIBANAsync(iban, depth);
+        }
+        catch (Exception e)
+        {
+            throw new RekeningManagerException($"Er is een fout opgetreden bij het ophalen van de rekening voor {iban}", e);
+        }
+    }
+
     public async Task<bool> TransferMoneyAsync(Rekening from, Rekening to, decimal amount, string? mededeling = null)
     {
         // Je moet iets kunnen storten op een vreemd rekeningnummer...

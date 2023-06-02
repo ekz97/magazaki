@@ -42,6 +42,8 @@ namespace PeasieAPI
 
         public static void Main(string[] args)
         {
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
             // Create the app builder:
             var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +61,17 @@ namespace PeasieAPI
                .Enrich.FromLogContext()
                .Enrich.WithProperty("Version", "1.0.0")
                .ReadFrom.Configuration(ctx.Configuration));
+
+
+            // Add CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  policy =>
+                                  {
+                                      policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                                  });
+            });
 
             // Add rate limiter tot the container.
             // ----------------------------------
@@ -259,6 +272,8 @@ namespace PeasieAPI
             // forwarded headers from a reverse proxy, part 2:
             app.UseForwardedHeaders();
             */
+
+            app.UseCors(MyAllowSpecificOrigins);
 
             // Configure the HTTP request pipeline.
             app.UseResponseCompression();

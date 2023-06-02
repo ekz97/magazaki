@@ -40,6 +40,8 @@ namespace RESTLayer
 
         public static void Main(string[] args)
         {
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
             ApplicationContextService = new();
 
             // Create the app builder.
@@ -66,6 +68,16 @@ namespace RESTLayer
                 .Enrich.FromLogContext()
                 .Enrich.WithProperty("Version", "1.0.0")
                 .ReadFrom.Configuration(ctx.Configuration));
+
+            // Add CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  policy =>
+                                  {
+                                      policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                                  });
+            });
 
             builder.Services.AddHostedService<StartupHostedService>();
             builder.Services.AddSingleton<GebruikerManager>();
@@ -294,9 +306,13 @@ namespace RESTLayer
             // ------------------------------------
             app.UseResponseCompression();
             app.UseRequestDecompression();
+
+            app.UseCors(MyAllowSpecificOrigins);
+
             //app.UseHsts();
             //app.UseHttpsRedirection();
             //app.Urls.Add("http://localhost:5296");
+
             app.MapControllers();
 
             app.MapHealthChecks("/Health");

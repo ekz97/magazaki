@@ -40,6 +40,8 @@ namespace WebshopApi.Presentation
 
         public static void Main(string[] args)
         {
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
             ApplicationContextService = new();
 
             // Create the app builder.
@@ -62,6 +64,16 @@ namespace WebshopApi.Presentation
                 .Enrich.FromLogContext()
                 .Enrich.WithProperty("Version", "1.0.0")
                 .ReadFrom.Configuration(ctx.Configuration));
+
+            // Add CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  policy =>
+                                  {
+                                      policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                                  });
+            });
 
             // Add rate limiter tot the container.
             // ----------------------------------
@@ -279,6 +291,8 @@ namespace WebshopApi.Presentation
             app.UseRequestDecompression();
             //app.UseHsts();
             //app.UseHttpsRedirection();
+
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.MapHealthChecks("/Health");
 

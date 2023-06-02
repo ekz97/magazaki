@@ -97,8 +97,8 @@ public class RekeningManager
         }
         try
         {
-            var rekeningDb = await _rekeningRepository.RekeningOphalenAsync(id, 0) ?? throw new RekeningManagerException("Rekening bestaat niet");
-            return await _rekeningRepository.RekeningOphalenAsync(id, depth);
+            var rekeningDb = _rekeningRepository.RekeningOphalenAsync(id, depth).Result;
+            return rekeningDb;
         }
         catch (Exception e)
         {
@@ -114,8 +114,8 @@ public class RekeningManager
         }
         try
         {
-            var rekeningDb = await _rekeningRepository.RekeningOphalenViaEmailAsync(email, 0) ?? throw new RekeningManagerException("Rekening bestaat niet");
-            return await _rekeningRepository.RekeningOphalenViaEmailAsync(email, depth);
+            var rekeningDb = _rekeningRepository.RekeningOphalenViaEmailAsync(email, depth).Result;
+            return rekeningDb;
         }
         catch (Exception e)
         {
@@ -131,8 +131,8 @@ public class RekeningManager
         }
         try
         {
-            var rekeningDb = await _rekeningRepository.RekeningOphalenViaIBANAsync(iban, 0) ?? throw new RekeningManagerException("Rekening bestaat niet");
-            return await _rekeningRepository.RekeningOphalenViaIBANAsync(iban, depth);
+            var rekeningDb = _rekeningRepository.RekeningOphalenViaIBANAsync(iban, depth).Result;
+            return rekeningDb;
         }
         catch (Exception e)
         {

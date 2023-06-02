@@ -55,15 +55,7 @@ namespace RESTLayer.Services
             }
             catch (Exception toEx)
             {
-                _contextService?.Logger?.LogDebug($"Destination account not found: {toEx.Message}");
-            }
-
-            // it is possible to send money to an account we do not manage as a bank ... we should verify the existence of the account at the destination bank however
-            if (toAccount == null)
-            {
-                _contextService?.Logger?.LogDebug("Creating dummy account...");
-                toAccount = new LogicLayer.Model.Rekening(LogicLayer.Model.RekeningType.Zichtrekening, paymentTransaction.DestinationInfo.Identifier, 5000, new Gebruiker(paymentTransaction.DestinationInfo.Type, "", "", "", DateTime.Now, new Adres(), Guid.NewGuid()));
-                rekeningManager.RekeningToevoegenAsync(toAccount).Wait();
+                _contextService?.Logger?.LogDebug($"Destination account not found for {paymentTransaction.DestinationInfo.Identifier}: {toEx.Message}");
             }
 
             if (fromAccount == null || toAccount == null)

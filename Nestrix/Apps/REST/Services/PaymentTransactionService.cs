@@ -16,42 +16,42 @@ namespace RESTLayer.Services
             _contextService = applicationContextService;
         }   
 
-        public PaymentTransactionDTO? Process(PaymentTransactionDTO transaction)
+        public PaymentTransactionDTO? Process(PaymentTransactionDTO paymentTransaction)
         {
             _contextService?.Logger?.LogDebug("-> PaymentTransactionService::Process");
-            if (transaction == null) 
+            if (paymentTransaction == null) 
             {
                 _contextService?.Logger?.LogDebug("<- PaymentTransactionService::Process (TRX NOT SPECIFIED)");
-                return transaction;
+                return paymentTransaction;
             }
             string connectionString = _contextService?.Configuration?.GetConnectionString("PeasieAPIDB")!;
             _contextService?.Logger?.LogDebug($"Connection string: {connectionString}");
 
             var rekeningManager = new RekeningManager(new RekeningRepository(connectionString), new TransactieRepository(connectionString));
 
-            _contextService?.Logger?.LogDebug($"TRX: {transaction.ToString()}");
+            _contextService?.Logger?.LogDebug($"TRX: {paymentTransaction.ToString()}");
 
             // var source = Guid.Parse("3c146461-8b97-4028-8a51-3511113d3e95");
 
             Rekening? fromAccount = null;
             try
             {
-                fromAccount = rekeningManager.RekeningOphalenViaEmailAsync(transaction.SourceInfo.Identifier).Result;
-                _contextService?.Logger?.LogDebug($"Source account found for {transaction.SourceInfo.Identifier}: saldo {fromAccount.Saldo} (credit {fromAccount.KredietLimiet}");
+                fromAccount = rekeningManager.RekeningOphalenViaEmailAsync(paymentTransaction.SourceInfo.Identifier).Result;
+                _contextService?.Logger?.LogDebug($"Source account found for {paymentTransaction.SourceInfo.Identifier}: saldo {fromAccount.Saldo} (credit {fromAccount.KredietLimiet})");
             }
             catch(Exception fromEx)
             {
                 _contextService?.Logger?.LogDebug($"Source account not found: {fromEx.Message}");
                 var userManager = new GebruikerManager(new GebruikerRepository(connectionString));
-                var user = userManager.GebruikerOphalenAsync(transaction.SourceInfo.Identifier).Result;
+                var user = userManager.GebruikerOphalenAsync(paymentTransaction.SourceInfo.Identifier).Result;
                 fromAccount = new Rekening(RekeningType.Zichtrekening, "BE68539007547034", 5000, user);
                 rekeningManager.RekeningToevoegenAsync(fromAccount).Wait();
             }
             Rekening? toAccount = null;
             try
             {
-                toAccount = rekeningManager.RekeningOphalenViaEmailAsync(transaction.DestinationInfo.Identifier).Result;
-                _contextService?.Logger?.LogDebug($"Destination account found for {transaction.DestinationInfo.Identifier}");
+                toAccount = rekeningManager.RekeningOphalenViaEmailAsync(paymentTransaction.DestinationInfo.Identifier).Result;
+                _contextService?.Logger?.LogDebug($"Destination account found for {paymentTransaction.DestinationInfo.Identifier}");
             }
             catch (Exception toEx)
             {
@@ -67,16 +67,16 @@ namespace RESTLayer.Services
 
             if (fromAccount == null || toAccount == null)
             {
-                transaction.Status = "FAILED";
+                paymentTransaction.Status = "FAILED";
                 _contextService?.Logger?.LogDebug("<- PaymentTransactionService::Process (ACT not found)");
-                return transaction;
+                return paymentTransaction;
             }
             else
             {
                 var success = false;
                 try
                 {
-                    success = rekeningManager.TransferMoneyAsync(fromAccount, toAccount, transaction?.Amount?.Value ?? 0, transaction?.Comment).Result;
+                    success = rekeningManager.TransferMoneyAsync(fromAccount, toAccount, paymentTransaction?.Amount?.Value ?? 0, paymentTransaction?.Comment).Result;
                 }
                 catch(Exception ex)
                 {
@@ -84,14 +84,14 @@ namespace RESTLayer.Services
                 }
                 if(!success)
                 {
-                    transaction.Status = "FAILED";
+                    paymentTransaction.Status = "FAILED";
                     _contextService?.Logger?.LogDebug("<- PaymentTransactionService::Process (TRANSFER FAILED)");
-                    return transaction;
+                    return paymentTransaction;
                 }
             }
-            transaction.Status = "COMPLETED";
+            paymentTransaction.Status = "COMPLETED";
             _contextService?.Logger?.LogDebug("<- PaymentTransactionService::Process");
-            return transaction;
+            return paymentTransaction;
         }
     }
 }

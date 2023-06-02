@@ -21,6 +21,11 @@ namespace Peasie.Contracts
 
         [JsonPropertyName("currency")]
         public string Currency { get; }
+
+        public override string? ToString()
+        {
+            return $"Amount: {this.Value} {this.Currency}";
+        }
     }
 
     /*

@@ -12,19 +12,24 @@ namespace Peasie.Contracts
             string internalAccountId
         )
         {
-            this.type = type;
+            this.Type = type;
             this.Identifier = identifier;
             this.InternalAccountId = internalAccountId;
         }
 
         [JsonPropertyName("type")]
-        public string type { get; }
+        public string Type { get; }
 
         [JsonPropertyName("identifier")]
         public string Identifier { get; }
 
         [JsonPropertyName("internalAccountId")]
         public string InternalAccountId { get; }
+
+        public override string? ToString()
+        {
+            return $"Source Info: {this.Type}, {this.Identifier}, {this.InternalAccountId}";
+        }
     }
 
     /*

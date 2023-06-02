@@ -7,8 +7,8 @@ namespace LogicLayer.Managers;
 
 public class RekeningManager
 {
-    private IRekeningRepository _rekeningRepository;
-    private ITransactieRepository _transactieRepository;
+    private readonly IRekeningRepository _rekeningRepository;
+    private readonly ITransactieRepository _transactieRepository;
 
     public RekeningManager(IRekeningRepository rekeningRepository, ITransactieRepository transactieRepository)
     {
@@ -174,7 +174,7 @@ public class RekeningManager
         //return false;
     }
 
-    private void PerformTransfer(Rekening from, Rekening to, decimal amount, Transactie transactie,
+    private static void PerformTransfer(Rekening from, Rekening to, decimal amount, Transactie transactie,
         Transactie transactieOntvangen)
     {
         try
@@ -190,3 +190,5 @@ public class RekeningManager
         }
     }
 }
+
+// TODO: saldo!?

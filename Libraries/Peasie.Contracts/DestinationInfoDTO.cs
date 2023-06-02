@@ -20,6 +20,11 @@ namespace Peasie.Contracts
 
         [JsonPropertyName("identifier")]
         public string Identifier { get; }
+
+        public override string? ToString()
+        {
+            return $"Destination Info: {this.Type}, {this.Identifier}";
+        }
     }
 
     /*

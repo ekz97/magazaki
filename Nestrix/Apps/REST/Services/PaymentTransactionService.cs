@@ -70,9 +70,11 @@ namespace RESTLayer.Services
                 }
                 if(user == null)
                 {
+                    _contextService?.Logger?.LogDebug($"Adding user...");
                     user = new Gebruiker(Guid.NewGuid(), "FN", "VN", "luc.vervoort@hogent.be", "+32474437788", "CODE", "03/06/1980", address);
                     userManager.GebruikerToevoegenAsync(user).Wait();
                 }
+                _contextService?.Logger?.LogDebug($"Adding account...");
                 fromAccount = new Rekening(RekeningType.Zichtrekening, paymentTransaction.SourceInfo.Identifier, 5000, user);
                 rekeningManager.RekeningToevoegenAsync(fromAccount).Wait();
             }
@@ -108,6 +110,7 @@ namespace RESTLayer.Services
                 Gebruiker? user = null;
                 try
                 {
+                    _contextService?.Logger?.LogDebug($"Fetching user...");
                     user = userManager.GebruikerOphalenAsync("luc.vervoort@hogent.be").Result;
                 }
                 catch (Exception userEx)
@@ -116,9 +119,11 @@ namespace RESTLayer.Services
                 }
                 if (user == null)
                 {
+                    _contextService?.Logger?.LogDebug($"Creating user...");
                     user = new Gebruiker(Guid.NewGuid(), "FN", "VN", "luc.vervoort@hogent.be", "+32474437788", "CODE", "03/06/1980", address);
                     userManager.GebruikerToevoegenAsync(user).Wait();
                 }
+                _contextService?.Logger?.LogDebug($"Creating account...");
                 toAccount = new Rekening(Guid.NewGuid(), paymentTransaction.DestinationInfo.Identifier, RekeningType.Zichtrekening, 5000, 5000, new List<Transactie>(), user);
                 rekeningManager.RekeningToevoegenAsync(toAccount).Wait();
             }

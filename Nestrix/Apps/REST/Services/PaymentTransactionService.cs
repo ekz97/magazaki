@@ -62,7 +62,7 @@ namespace RESTLayer.Services
             if (toAccount == null)
             {
                 _contextService?.Logger?.LogDebug("Creating dummy account...");
-                toAccount = new LogicLayer.Model.Rekening(LogicLayer.Model.RekeningType.Zichtrekening, "BE68539007547035", -1, null);
+                toAccount = new LogicLayer.Model.Rekening(LogicLayer.Model.RekeningType.Zichtrekening, paymentTransaction.DestinationInfo.Identifier, 5000, new Gebruiker(paymentTransaction.DestinationInfo.Type, "", "", "", DateTime.Now, new Adres(), Guid.NewGuid()));
             }
 
             if (fromAccount == null || toAccount == null)

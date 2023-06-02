@@ -7,7 +7,7 @@ namespace Peasie.Contracts
     {
         [JsonConstructor]
         public DestinationInfoDTO(
-            string type,
+            string type, 
             string identifier
         )
         {

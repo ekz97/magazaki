@@ -51,7 +51,7 @@ namespace RESTLayer.Services
                 }
                 catch(Exception userEx)
                 {
-                    user = new Gebruiker("FN", "VN", "luc.vervoort@hogent.be", "+32474437788", DateTime.Now, new Adres(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE"), Guid.NewGuid());
+                    user = new Gebruiker(Guid.NewGuid(), "FN", "VN", "luc.vervoort@hogent.be", "+32474437788", "CODE", "03/06/1980", new Adres(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE"));
                     userManager.GebruikerToevoegenAsync(user).Wait();
                 }
                 fromAccount = new Rekening(RekeningType.Zichtrekening, paymentTransaction.SourceInfo.Identifier, 5000, user);
@@ -69,7 +69,7 @@ namespace RESTLayer.Services
 
                 var userManager = new GebruikerManager(new GebruikerRepository(connectionString));
                 Gebruiker? user = null;
-                user = new Gebruiker("FN", "VN", "luc.vervoort@hogent.be", "+32474437788", DateTime.Now, new Adres(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE"), Guid.NewGuid());
+                user = new Gebruiker(Guid.NewGuid(), "FN", "VN", "luc.vervoort@hogent.be", "+32474437788", "CODE", "03/06/1980", new Adres(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE"));
                 userManager.GebruikerToevoegenAsync(user).Wait();
                 toAccount = new Rekening(RekeningType.Zichtrekening, paymentTransaction.SourceInfo.Identifier, 5000, user);
                 rekeningManager.RekeningToevoegenAsync(toAccount).Wait();

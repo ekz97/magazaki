@@ -24,8 +24,8 @@ public class GebruikerRepository : IGebruikerRepository
             await using var command = connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.AddWithValue("@id", gebruiker.Id);
-            command.Parameters.AddWithValue("@voornaam", gebruiker.Voornaam);
             command.Parameters.AddWithValue("@familienaam", gebruiker.Familienaam);
+            command.Parameters.AddWithValue("@voornaam", gebruiker.Voornaam);
             command.Parameters.AddWithValue("@email", gebruiker.Email);
             command.Parameters.AddWithValue("@geboortedatum", gebruiker.Geboortedatum);
             command.Parameters.AddWithValue("@adresId", gebruiker.Adres.Id);

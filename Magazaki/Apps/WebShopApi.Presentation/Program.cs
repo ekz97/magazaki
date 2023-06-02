@@ -378,7 +378,15 @@ namespace WebshopApi.Presentation
             }
             else if (ApplicationContextService?.DemoMode == true)
             {
-                BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { IBAN = "BE68539007547999", Amount = 50, Currency = "EUR", Comment = $"Ticket {Guid.NewGuid()}" });
+                try
+                {
+                    ApplicationContextService?.Logger?.LogDebug("Sending payment request (demo mode is active)");
+                    BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { IBAN = "BE68539007547999", Amount = 50, Currency = "EUR", Comment = $"Ticket {Guid.NewGuid()}" });
+                }
+                catch(Exception e)
+                {
+                    ApplicationContextService?.Logger?.LogError(e.Message);
+                }
             }
             ApplicationContextService?.Logger?.LogDebug("<- WebshopApi.Presentation::EveryMinute");
             return Results.Ok(null);

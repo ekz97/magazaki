@@ -256,7 +256,7 @@ public class RekeningRepository : IRekeningRepository
             const string query = "SELECT r.Rekeningnummer, r.IBAN, r.GebruikerId, r.RekeningType, r.Krediet, r.Saldo, r.TransactieId, r.is_visible, g.Familienaam, g.Voornaam, g.Email, g.Geboortedatum, g.Telefoonnummer, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land, t.Bedrag, t.Datum, t.RekeningnummerBegunstigde, t.TransactieType, t.Mededeling FROM Rekening r JOIN Gebruiker g on g.Id = r.GebruikerId JOIN Adres a on a.Id = g.AdresId LEFT JOIN Transactie t on t.Id = r.TransactieId WHERE g.IBAN = @iban";
             await using var command = connection.CreateCommand();
             command.CommandText = query;
-            command.Parameters.AddWithValue("@email", iban);
+            command.Parameters.AddWithValue("@iban", iban);
             await connection.OpenAsync();
             await using var reader = command.ExecuteReader();
             if (await reader.ReadAsync())

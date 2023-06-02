@@ -38,8 +38,8 @@ public class PeasieAuthorizationHandler : AuthorizationHandler<PeasieAuthorizati
             //    context.Succeed(requirement);
             //}
 
-            var result = EFSqlHelper.RawSqlQuery(new PeasieAPIDbContext(), "SELECT UserName, PasswordHash, Secret FROM AspNetUsers",
-            x => new { EmailAddress = (string)x[0], Password = (string)x[1], Secret = (string)x[2] });
+            // var result = EFSqlHelper.RawSqlQuery(new PeasieAPIDbContext(), "SELECT UserName, PasswordHash, Secret FROM AspNetUsers",
+            //              x => new { EmailAddress = (string)x[0], Password = (string)x[1], Secret = (string)x[2] });
 
             // IDataProtector protector = _dataProtectionProvider.CreateProtector("APIKEY", new string[] { "lcvervoort@yahoo.com" });
 

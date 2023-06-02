@@ -181,7 +181,7 @@ public class PeasieEndpointHandler
 
         _ = hookHandler.MapPost("/PaymentTrxUpdate", (PeasieRequestDTO peasieRequestDTO) =>
         {
-            applicationContextService?.Logger.LogDebug("-> PeasieEndpointHandler::PaymentTrxUpdate");
+            applicationContextService?.Logger?.LogDebug("-> PeasieEndpointHandler::PaymentTrxUpdate");
 
             // Decrypt using bank session public key
             var session = dataManagerService.Sessions[peasieRequestDTO.Id];
@@ -194,7 +194,7 @@ public class PeasieEndpointHandler
 
             // Encrypt beneficiary session public key en send to beneficiary hook
 
-            applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentTrxUpdate");
+            applicationContextService?.Logger?.LogDebug("<- PeasieEndpointHandler::PaymentTrxUpdate");
             return Results.Ok();
         }).RequireAuthorization("IsAuthorized");
 
@@ -202,35 +202,35 @@ public class PeasieEndpointHandler
 
         _ = paymentHandler.MapPost("/request", (PeasieRequestDTO peasieRequestDTO) =>
         {
-            applicationContextService?.Logger.LogDebug("-> PeasieEndpointHandler::PaymentRequest");
+            applicationContextService?.Logger?.LogDebug("-> PeasieEndpointHandler::PaymentRequest");
             PaymentRequestDTO? paymentRequest = null;
 
-            var session = dataManagerService.Sessions[peasieRequestDTO.Id];
+            var session = dataManagerService?.Sessions[peasieRequestDTO?.Id];
             string? decrypted = null;
             if (session != null && !string.IsNullOrEmpty(session.PrivateKey))
             {
-                decrypted = EncryptionService.DecryptUsingPrivateKey(peasieRequestDTO.Payload, session.PrivateKey);
+                decrypted = EncryptionService.DecryptUsingPrivateKey(peasieRequestDTO?.Payload, session.PrivateKey);
                 paymentRequest = JsonSerializer.Deserialize<PaymentRequestDTO>(decrypted);
             }
 
             if (string.IsNullOrEmpty(decrypted) || paymentRequest == null || string.IsNullOrEmpty(paymentRequest.BeneficiaryPublicKey))
             {
-                applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentRequest (decryption problem)");
+                applicationContextService?.Logger?.LogDebug("<- PeasieEndpointHandler::PaymentRequest (decryption problem)");
                 return Results.BadRequest();
             }
 
             if(paymentRequest.SessionDetails == null || paymentRequest.SessionDetails.User == null || string.IsNullOrEmpty(paymentRequest.SessionDetails.User.Email))
             {
-                applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentRequest (session details not avail)");
+                applicationContextService?.Logger?.LogDebug("<- PeasieEndpointHandler::PaymentRequest (session details not avail)");
                 return Results.BadRequest();
             }
 
             // we encrypt for bank
             // search bank session: email
-            applicationContextService?.Logger.LogDebug($"Searching email: {paymentRequest.SessionDetails.User.Email} and type: {paymentRequest.SessionDetails.User.Type}");
-            foreach(var s in dataManagerService.Sessions.Values)
+            applicationContextService?.Logger?.LogDebug($"Searching email: {paymentRequest.SessionDetails.User.Email} and type: {paymentRequest.SessionDetails.User.Type}");
+            foreach(var s in dataManagerService?.Sessions.Values)
             {
-                applicationContextService?.Logger.LogDebug($"{s.SessionDetails?.User?.Email}: {s.SessionDetails?.User?.Type}");
+                applicationContextService?.Logger?.LogDebug($"{s.SessionDetails?.User?.Email}: {s.SessionDetails?.User?.Type}");
             }
             var bankSession = dataManagerService.Sessions.Values.Where(s => s.SessionResponse != null 
                 && s.SessionDetails?.User?.Email == paymentRequest.SessionDetails.User.Email 
@@ -238,27 +238,27 @@ public class PeasieEndpointHandler
 
             if (bankSession == null)
             {
-                applicationContextService?.Logger.LogError("Matching financial institute not found");
-                applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentRequest");
+                applicationContextService?.Logger?.LogError("Matching financial institute not found");
+                applicationContextService?.Logger?.LogDebug("<- PeasieEndpointHandler::PaymentRequest");
                 return Results.BadRequest();
             }
 
             PeasieRequestDTO bankPeasieRequestDTO = new()
             {
-                Id = bankSession.SessionResponse.SessionGuid.ToString(),
-                Payload = EncryptionService.EncryptUsingPublicKey(decrypted, bankSession.SessionRequest.PublicKey)
+                Id = bankSession?.SessionResponse?.SessionGuid.ToString(),
+                Payload = EncryptionService.EncryptUsingPublicKey(decrypted, bankSession?.SessionRequest.PublicKey)
             };
 
             var url = applicationContextService?.FinancialInstituteUrl + "/payment/request";
-            applicationContextService?.Logger.LogDebug($"Constructed url: {url}");
+            applicationContextService?.Logger?.LogDebug($"Constructed url: {url}");
             var reference = url.WithOAuthBearerToken(bankSession.SessionDetails?.JWTAuthorizationToken).PostJsonAsync(bankPeasieRequestDTO).Result;
 
             var reply = reference.GetJsonAsync<PeasieReplyDTO>().Result;
 
             if (string.IsNullOrEmpty(reply.Payload))
             {
-                applicationContextService?.Logger.LogError("No reply from BANK");
-                applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentRequest");
+                applicationContextService?.Logger?.LogError("No reply from BANK");
+                applicationContextService?.Logger?.LogDebug("<- PeasieEndpointHandler::PaymentRequest");
                 return Results.BadRequest();
             }
 
@@ -272,13 +272,13 @@ public class PeasieEndpointHandler
                 Payload = EncryptionService.EncryptUsingPublicKey(bankReplyDecrypted, session.SessionRequest.PublicKey)
             };
 
-            applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentRequest");
+            applicationContextService?.Logger?.LogDebug("<- PeasieEndpointHandler::PaymentRequest");
             return Results.Ok(bankReplyToBeneficiary);
         }).RequireAuthorization("IsAuthorized");
 
         _ = paymentHandler.MapPost("/trx", (PeasieRequestDTO peasieRequestDTO) =>
         {
-            applicationContextService?.Logger.LogDebug("<- PeasieEndpointHandler::PaymentTrx");
+            applicationContextService?.Logger?.LogDebug("<- PeasieEndpointHandler::PaymentTrx");
 
             PeasieRequestDTO? bankPeasieRequestDTO = null;
 

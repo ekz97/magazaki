@@ -42,12 +42,20 @@ namespace RESTLayer.Services
             catch(Exception fromEx)
             {
                 _contextService?.Logger?.LogDebug($"Source account not found for {paymentTransaction.SourceInfo.Identifier}: {fromEx.Message}");
-                /*
+ 
                 var userManager = new GebruikerManager(new GebruikerRepository(connectionString));
-                var user = userManager.GebruikerOphalenAsync(paymentTransaction.SourceInfo.Identifier).Result;
+                Gebruiker? user = null;
+                try
+                {
+                    user = userManager.GebruikerOphalenAsync(paymentTransaction.SourceInfo.Identifier).Result;
+                }
+                catch(Exception userEx)
+                {
+                    user = new Gebruiker("FN", "VN", "luc.vervoort@hogent.be", "+32474437788", DateTime.Now, new Adres(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE"), Guid.NewGuid());
+                    userManager.GebruikerToevoegenAsync(user).Wait();
+                }
                 fromAccount = new Rekening(RekeningType.Zichtrekening, paymentTransaction.SourceInfo.Identifier, 5000, user);
                 rekeningManager.RekeningToevoegenAsync(fromAccount).Wait();
-                */
             }
             Rekening? toAccount = null;
             try
@@ -58,6 +66,13 @@ namespace RESTLayer.Services
             catch (Exception toEx)
             {
                 _contextService?.Logger?.LogDebug($"Destination account not found for {paymentTransaction.DestinationInfo.Identifier}: {toEx.Message}");
+
+                var userManager = new GebruikerManager(new GebruikerRepository(connectionString));
+                Gebruiker? user = null;
+                user = new Gebruiker("FN", "VN", "luc.vervoort@hogent.be", "+32474437788", DateTime.Now, new Adres(Guid.NewGuid(), "ST", "01", "0000", "GEM", "BE"), Guid.NewGuid());
+                userManager.GebruikerToevoegenAsync(user).Wait();
+                toAccount = new Rekening(RekeningType.Zichtrekening, paymentTransaction.SourceInfo.Identifier, 5000, user);
+                rekeningManager.RekeningToevoegenAsync(toAccount).Wait();
             }
 
             if (fromAccount == null || toAccount == null)

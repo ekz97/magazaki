@@ -99,12 +99,14 @@ public class RekeningRepository : IRekeningRepository
         }
     }
 
-    public async Task<Rekening?> RekeningOphalenAsync(Guid id, int depth)
+    public async Task<Rekening?> RekeningOphalenAsync(Guid id, int depth = 0)
     {
         var connection = new MySqlConnection(_connectionString);
         try
         {
-            const string query = "SELECT r.Rekeningnummer, r.IBAN, r.GebruikerId, r.RekeningType, r.Krediet, r.Saldo, r.TransactieId, r.is_visible, g.Familienaam, g.Voornaam, g.Email, g.Geboortedatum, g.Telefoonnummer, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land, t.Bedrag, t.Datum, t.RekeningnummerBegunstigde, t.TransactieType, t.Mededeling FROM Rekening r JOIN Gebruiker g on g.Id = r.GebruikerId JOIN Adres a on a.Id = g.AdresId LEFT JOIN Transactie t on t.Id = r.TransactieId WHERE Rekeningnummer = @rekeningnummer";
+            const string query = "SELECT r.Rekeningnummer, r.IBAN, r.GebruikerId, r.RekeningType, r.Krediet, r.Saldo, r.TransactieId, r.is_visible, g.Familienaam, g.Voornaam, g.Email, g.Geboortedatum, g.Telefoonnummer, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Rekening r JOIN Gebruiker g on g.Id = r.GebruikerId JOIN Adres a on a.Id = g.AdresId WHERE Rekeningnummer = @rekeningnummer";
+            // , t.Bedrag, t.Datum, t.RekeningnummerBegunstigde, t.TransactieType, t.Mededeling
+            // LEFT JOIN Transactie t on t.Id = r.TransactieId
             await using var command = connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.AddWithValue("@rekeningnummer", id);
@@ -154,12 +156,14 @@ public class RekeningRepository : IRekeningRepository
         }
     }
 
-    public async Task<Rekening?> RekeningOphalenViaEmailAsync(string email, int depth)
+    public async Task<Rekening?> RekeningOphalenViaEmailAsync(string email, int depth = 0)
     {
         var connection = new MySqlConnection(_connectionString);
         try
         {
-            const string query = "SELECT r.Rekeningnummer, r.IBAN, r.GebruikerId, r.RekeningType, r.Krediet, r.Saldo, r.TransactieId, r.is_visible, g.Familienaam, g.Voornaam, g.Email, g.Geboortedatum, g.Telefoonnummer, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land, t.Bedrag, t.Datum, t.RekeningnummerBegunstigde, t.TransactieType, t.Mededeling FROM Rekening r JOIN Gebruiker g on g.Id = r.GebruikerId JOIN Adres a on a.Id = g.AdresId LEFT JOIN Transactie t on t.Id = r.TransactieId WHERE g.Email = @email";
+            const string query = "SELECT r.Rekeningnummer, r.IBAN, r.GebruikerId, r.RekeningType, r.Krediet, r.Saldo, r.TransactieId, r.is_visible, g.Familienaam, g.Voornaam, g.Email, g.Geboortedatum, g.Telefoonnummer, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Rekening r JOIN Gebruiker g on g.Id = r.GebruikerId JOIN Adres a on a.Id = g.AdresId WHERE g.Email = @email";
+            // , t.Bedrag, t.Datum, t.RekeningnummerBegunstigde, t.TransactieType, t.Mededeling
+            // LEFT JOIN Transactie t on t.Id = r.TransactieId
             await using var command = connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.AddWithValue("@email", email);
@@ -248,12 +252,14 @@ public class RekeningRepository : IRekeningRepository
         }
     }
 
-    public async Task<Rekening?> RekeningOphalenViaIBANAsync(string iban, int depth)
+    public async Task<Rekening?> RekeningOphalenViaIBANAsync(string iban, int depth = 0)
     {
         var connection = new MySqlConnection(_connectionString);
         try
         {
-            const string query = "SELECT r.Rekeningnummer, r.IBAN, r.GebruikerId, r.RekeningType, r.Krediet, r.Saldo, r.TransactieId, r.is_visible, g.Familienaam, g.Voornaam, g.Email, g.Geboortedatum, g.Telefoonnummer, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land, t.Bedrag, t.Datum, t.RekeningnummerBegunstigde, t.TransactieType, t.Mededeling FROM Rekening r JOIN Gebruiker g on g.Id = r.GebruikerId JOIN Adres a on a.Id = g.AdresId LEFT JOIN Transactie t on t.Id = r.TransactieId WHERE g.IBAN = @iban";
+            const string query = "SELECT r.Rekeningnummer, r.IBAN, r.GebruikerId, r.RekeningType, r.Krediet, r.Saldo, r.TransactieId, r.is_visible, g.Familienaam, g.Voornaam, g.Email, g.Geboortedatum, g.Telefoonnummer, a.Straat, a.Huisnummer, a.Gemeente, a.Postcode, a.Land FROM Rekening r JOIN Gebruiker g on g.Id = r.GebruikerId JOIN Adres a on a.Id = g.AdresId WHERE g.IBAN = @iban";
+            // , t.Bedrag, t.Datum, t.RekeningnummerBegunstigde, t.TransactieType, t.Mededeling
+            // LEFT JOIN Transactie t on t.Id = r.TransactieId
             await using var command = connection.CreateCommand();
             command.CommandText = query;
             command.Parameters.AddWithValue("@iban", iban);

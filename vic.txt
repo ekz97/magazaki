@@ -1,3 +1,7 @@
+nohup ./StartPeasieAPI.sh > PeasieAPI.out 2>&1 &
+nohup ./StartMagazakiAPI.sh > MagazakiAPI.out 2>&1 &
+nohup ./StartNestrixAPI.sh > NestrixAPI.out 2>&1 &
+
 Don't forget to bind to 10.11.0.44 if you want remote access; also for mysql, see /etc/mysql/mysql.conf.d/mysqld.cnf (instead of 127.0.0.1)
 For mysql, better: 0.0.0.0
 /etc/init.d/mysql restart
@@ -34,7 +38,7 @@ dotnet ef database update --context ApplicationDbContext
 * Portmapping:
     * vichogent.be:40070/tcp -> localhost:22/tcp => SSH
     * vichogent.be:40072/tcp -> localhost:3000/tcp => stagedb
-    * vichogent.be:40073/tcp -> localhost:3001/tcp => KBC
+    * vichogent.be:40073/tcp -> localhost:3001/tcp => stageclient
     * vichogent.be:40074/tcp -> localhost:3002/tcp => colruyt
     * vichogent.be:40075/tcp -> localhost:3003/tcp => Store
     * vichogent.be:40076/tcp -> localhost:3004/tcp => Bank
@@ -60,6 +64,6 @@ ufw allow 3005/tcp
 
 https://www.scottbrady91.com/openssl/creating-rsa-keys-using-openssl
 https://dev.to/___bn___/free-certified-ssl-certificate-in-asp-net-5-kestrel-application-kgn        
-    https://pradeepl.com/blog/https-in-asp-net-core/        
+https://pradeepl.com/blog/https-in-asp-net-core/        
                 
                 

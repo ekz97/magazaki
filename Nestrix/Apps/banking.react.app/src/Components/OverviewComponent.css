@@ -1,0 +1,21 @@
+.overview-container {
+    display: flex;
+    flex-direction: column;
+    height: 31vh;
+    background-color: #00afef;
+    width: 80%;
+    border-radius: 1em;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+.transaction {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 0.4em;
+    font-weight: bold;
+    color: white;
+    padding-right: 1em;
+    padding-left: 1em;
+}

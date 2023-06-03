@@ -1,0 +1,32 @@
+.home-container {
+    display: flex;
+    flex-direction: column; /* toegevoegd */
+    justify-content: center;
+    align-items: center;
+    background-color: #222222;
+  }
+  .accounts {
+    display: flex;
+    flex-direction: row;
+    margin-top: 2em;
+    width: 80%;
+    justify-content: space-between;
+  }
+  .square-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .graphs {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 80%;
+    height: 12em;
+    border-radius: 1em;
+    background-color: #00afef;
+    margin-top: 2em;
+  }
+  

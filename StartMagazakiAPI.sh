@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /home/vicuser/Peasie/Magazaki/Apps/WebShopApi.Presentation
+cd /home/vicuser/Peasie/Magazaki/Apps/WebShopAPI
 dotnet run

@@ -55,7 +55,8 @@
       <Folder Include="Handlers\" />
       <Folder Include="Interfaces\" />
       <Folder Include="Services\" />
-    </ItemGroup>
+      <Folder Include="logs\" />
+	</ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\Libraries\Model\Model.csproj" />

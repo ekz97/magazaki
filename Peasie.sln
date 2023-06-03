@@ -5,10 +5,6 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{A74E9942-938D-4A63-8CB5-EF2A78867BE9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BeneficiaryAPI", "Apps\BeneficiaryAPI\BeneficiaryAPI.csproj", "{7515EA2C-331F-4830-9DD7-5AC48FC555D1}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinancialInstituteAPI", "Apps\FinancialInstituteAPI\FinancialInstituteAPI.csproj", "{8E7DA73D-0BC0-4BAC-A327-34F54DD3222D}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{BF73597C-6932-45D3-AF89-5C061E74DB92}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeasieAPI", "Apps\PeasieAPI\PeasieAPI.csproj", "{5509000B-041A-4624-8B33-38F0DB96E830}"
@@ -21,14 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Peasie.Identity.App", "Apps
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF3C2127-4259-4707-8D01-4344F0FAF9CC}"
 	ProjectSection(SolutionItems) = preProject
-		cleanup.cmd = cleanup.cmd
 		Introduction.md = Introduction.md
-		PeasieCleanAll.sh = PeasieCleanAll.sh
-		PeasieStopAll.sh = PeasieStopAll.sh
-		StartMagazakiAPI.sh = StartMagazakiAPI.sh
-		StartNestrixAPI.sh = StartNestrixAPI.sh
-		StartPeasieAPI.sh = StartPeasieAPI.sh
-		vic.txt = vic.txt
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LettuceEncryptForReal", "Libraries\LettuceEncryptForReal\LettuceEncryptForReal.csproj", "{8E536B4D-3E36-41D7-85AF-B8CFF0658F98}"
@@ -70,20 +59,27 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebShopAPI", "Magazaki\Apps
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "banking.react.app", "Nestrix\Apps\banking.react.app\banking.react.app.esproj", "{EEA284CA-359E-44B0-8C68-6B2966FB9F8C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{647A7F7B-4EC1-4E8A-B291-550C88054A8D}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\cleanup.cmd = scripts\cleanup.cmd
+		scripts\PeasieCleanAll.sh = scripts\PeasieCleanAll.sh
+		scripts\PeasieStopAll.sh = scripts\PeasieStopAll.sh
+		scripts\StartMagazakiAPI.sh = scripts\StartMagazakiAPI.sh
+		scripts\StartNestrixAPI.sh = scripts\StartNestrixAPI.sh
+		scripts\StartPeasieAPI.sh = scripts\StartPeasieAPI.sh
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{356D5BC2-28E3-41E3-BEDB-D95E702352A4}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\vic.txt = Documentation\vic.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7515EA2C-331F-4830-9DD7-5AC48FC555D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7515EA2C-331F-4830-9DD7-5AC48FC555D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7515EA2C-331F-4830-9DD7-5AC48FC555D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7515EA2C-331F-4830-9DD7-5AC48FC555D1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8E7DA73D-0BC0-4BAC-A327-34F54DD3222D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8E7DA73D-0BC0-4BAC-A327-34F54DD3222D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8E7DA73D-0BC0-4BAC-A327-34F54DD3222D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8E7DA73D-0BC0-4BAC-A327-34F54DD3222D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5509000B-041A-4624-8B33-38F0DB96E830}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5509000B-041A-4624-8B33-38F0DB96E830}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5509000B-041A-4624-8B33-38F0DB96E830}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -155,8 +151,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7515EA2C-331F-4830-9DD7-5AC48FC555D1} = {71CA2008-153F-4996-8A06-AB37FE41285D}
-		{8E7DA73D-0BC0-4BAC-A327-34F54DD3222D} = {71CA2008-153F-4996-8A06-AB37FE41285D}
 		{5509000B-041A-4624-8B33-38F0DB96E830} = {71CA2008-153F-4996-8A06-AB37FE41285D}
 		{585EFF4D-E1F4-432B-A0CA-44EB30918D7C} = {BF73597C-6932-45D3-AF89-5C061E74DB92}
 		{704A64B1-E6F5-4ABB-921C-A8DF77DA5366} = {BF73597C-6932-45D3-AF89-5C061E74DB92}

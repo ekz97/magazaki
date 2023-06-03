@@ -1,6 +1,6 @@
-nohup ./StartPeasieAPI.sh > PeasieAPI.out 2>&1 &
-nohup ./StartMagazakiAPI.sh > MagazakiAPI.out 2>&1 &
-nohup ./StartNestrixAPI.sh > NestrixAPI.out 2>&1 &
+nohup ./scripts/StartPeasieAPI.sh > PeasieAPI.out 2>&1 &
+nohup ./scripts/StartMagazakiAPI.sh > MagazakiAPI.out 2>&1 &
+nohup ./scripts/StartNestrixAPI.sh > NestrixAPI.out 2>&1 &
 
 pkill -9 -f Peasie
 pkill -9 -f Magazaki

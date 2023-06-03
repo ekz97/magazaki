@@ -21,6 +21,7 @@ namespace RESTLayer.Services
             _contextService?.Logger?.LogDebug("-> PaymentTransactionService::Process");
             if (paymentTransaction == null) 
             {
+                _contextService?.Logger?.LogInformation("TRX not specified");
                 _contextService?.Logger?.LogDebug("<- PaymentTransactionService::Process (TRX NOT SPECIFIED)");
                 return paymentTransaction;
             }
@@ -37,11 +38,11 @@ namespace RESTLayer.Services
             try
             {
                 fromAccount = rekeningManager.RekeningOphalenViaEmailAsync(paymentTransaction.SourceInfo.Identifier).Result;
-                _contextService?.Logger?.LogDebug($"Source account found for {paymentTransaction.SourceInfo.Identifier}: saldo {fromAccount.Saldo} (credit {fromAccount.KredietLimiet})");
+                _contextService?.Logger?.LogWarning($"Source account found for {paymentTransaction.SourceInfo.Identifier}: saldo {fromAccount.Saldo} (credit {fromAccount.KredietLimiet})");
             }
             catch(Exception fromEx)
             {
-                _contextService?.Logger?.LogDebug($"Source account not found for {paymentTransaction.SourceInfo.Identifier}: {fromEx.Message}");
+                _contextService?.Logger?.LogWarning($"Source account not found for {paymentTransaction.SourceInfo.Identifier}: {fromEx.Message}");
  
                 var addressManager = new AdresManager(new AdresRepository(connectionString));
                 Adres? address = null;
@@ -52,7 +53,7 @@ namespace RESTLayer.Services
                 }
                 catch(Exception addressEx)
                 {
-                    _contextService?.Logger?.LogDebug($"Exception fetching address: {addressEx.Message}");
+                    _contextService?.Logger?.LogWarning($"Exception fetching address: {addressEx.Message}");
                 }
                 if (address == null)
                 {
@@ -69,7 +70,7 @@ namespace RESTLayer.Services
                 }
                 catch(Exception userEx)
                 {
-                    _contextService?.Logger?.LogDebug($"Exception fetching user: {userEx.Message}");
+                    _contextService?.Logger?.LogWarning($"Exception fetching user: {userEx.Message}");
                 }
                 if(user == null)
                 {
@@ -89,7 +90,7 @@ namespace RESTLayer.Services
             }
             catch (Exception toEx)
             {
-                _contextService?.Logger?.LogDebug($"Destination account not found for {paymentTransaction.DestinationInfo.Identifier}: {toEx.Message}");
+                _contextService?.Logger?.LogWarning($"Destination account not found for {paymentTransaction.DestinationInfo.Identifier}: {toEx.Message}");
 
                 var addressManager = new AdresManager(new AdresRepository(connectionString));
                 Adres? address = null;
@@ -100,7 +101,7 @@ namespace RESTLayer.Services
                 }
                 catch (Exception addressEx)
                 {
-                    _contextService?.Logger?.LogDebug($"Exception fetching address: {addressEx.Message}");
+                    _contextService?.Logger?.LogWarning($"Exception fetching address: {addressEx.Message}");
                 }
                 if(address == null)
                 {
@@ -118,7 +119,7 @@ namespace RESTLayer.Services
                 }
                 catch (Exception userEx)
                 {
-                    _contextService?.Logger?.LogDebug($"Exception fetching user: {userEx.Message}");
+                    _contextService?.Logger?.LogWarning($"Exception fetching user: {userEx.Message}");
                 }
                 if (user == null)
                 {
@@ -134,6 +135,7 @@ namespace RESTLayer.Services
             if (fromAccount == null || toAccount == null)
             {
                 paymentTransaction.Status = "FAILED";
+                _contextService?.Logger?.LogError("Account not found");
                 _contextService?.Logger?.LogDebug("<- PaymentTransactionService::Process (ACT not found)");
                 return paymentTransaction;
             }
@@ -151,11 +153,13 @@ namespace RESTLayer.Services
                 if(!success)
                 {
                     paymentTransaction.Status = "FAILED";
+                    _contextService?.Logger?.LogError("Funds transfer failed");
                     _contextService?.Logger?.LogDebug("<- PaymentTransactionService::Process (TRANSFER FAILED)");
                     return paymentTransaction;
                 }
             }
             paymentTransaction.Status = "COMPLETED";
+            _contextService?.Logger?.LogInformation("Funds transfer success");
             _contextService?.Logger?.LogDebug("<- PaymentTransactionService::Process");
             return paymentTransaction;
         }

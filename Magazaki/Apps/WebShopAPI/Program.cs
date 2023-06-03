@@ -383,7 +383,7 @@ namespace WebshopApi.Presentation
             }
             if (ok && ApplicationContextService?.DemoMode == true)
             {
-                ApplicationContextService?.Logger?.LogDebug("Sending payment request (demo mode is active)");
+                ApplicationContextService?.Logger?.LogInformation("Sending payment request (demo mode is active)");
                 try
                 {
                     BeneficiaryEndpointHandler.MakePaymentRequest(ApplicationContextService, new PaymentTrxDTO() { IBAN = "BE68539007547999", Amount = 50, Currency = "EUR", Comment = $"Ticket {Guid.NewGuid().ToString()}" });

@@ -9,7 +9,7 @@ const LoginScreen = () => {
     event.preventDefault();
     try {
       const response = await fetch(
-        "https://localhost:7171/Gebruiker/loginEmail",
+        "http://vichogent.be:40076/Gebruiker/loginEmail",
         {
           method: "POST",
           headers: {
@@ -43,7 +43,7 @@ const LoginScreen = () => {
   const registerUser = async (email, password) => {
     try {
       const response = await fetch(
-        "https://localhost:7171/Gebruiker/Register?bankId=6a32d332-9a6e-4654-a809-3dfdbac32212",
+        "http://vichogent.be:40076/Gebruiker/Register?bankId=6a32d332-9a6e-4654-a809-3dfdbac32212",
         {
           method: "POST",
           headers: {

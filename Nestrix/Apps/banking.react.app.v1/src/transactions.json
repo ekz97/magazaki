@@ -1,0 +1,12 @@
+[
+  { "store": "Carrefour", "date": "27/07", "amount": "119,99" },
+  { "store": "Spar", "date": "16/06", "amount": "25,50" },
+  { "store": "Delhaize", "date": "01/05", "amount": "10,35" },
+  { "store": "Colruyt", "date": "19/04", "amount": "75,20" },
+  { "store": "Proxy Delhaize", "date": "10/04", "amount": "19,50" },
+  { "store": "Aldi", "date": "05/03", "amount": "5,25" },
+  { "store": "Okay", "date": "24/02", "amount": "68,10" },
+  { "store": "Bio-Planet", "date": "11/02", "amount": "42,80" },
+  { "store": "Match", "date": "29/01", "amount": "15,99" },
+  { "store": "Lidl", "date": "04/01", "amount": "57,80" }
+]

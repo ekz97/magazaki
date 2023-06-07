@@ -1,17 +1,26 @@
 import React from "react";
 import Home from "./Components/Home";
-import Login from "./Components/Login";
-import Header from "./Components/Header"
+import Header from "./Components/Header";
 import FooterComponent from "./Components/FooterComponent";
 import "./App.css";
+import { useAuth } from "./Context/AuthProvider";
+import LoginScreen from "./Screens/LoginScreen";
 
 const App = () => {
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
   return (
     <div className="container">
-      {/* <Login/> */}
-      <Header/>
-      <Home/>
-      <FooterComponent/>
+      {isLoggedIn ? (
+        <>
+          <Header/>
+          <Home />
+          <FooterComponent />
+        </>
+      ) : (
+        <>
+          <Header /> <LoginScreen />
+        </>
+      )}
     </div>
   );
 };

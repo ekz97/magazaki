@@ -1,0 +1,19 @@
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 2cm;
+  background-color: #00afef;
+  padding-left: 1cm;
+  padding-right: 1cm;
+}
+
+.exit-icon {
+  width: 55px;
+  margin-right: 1cm;
+}
+
+.logo {
+  width: 70px;
+  margin-left: 1cm;
+}

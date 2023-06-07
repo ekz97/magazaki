@@ -1,17 +1,25 @@
 import React from 'react'
-import Transactions from "../transactions.json"
 import "./OverviewComponent.css"
 
-const OverviewComponent = () => {
+const OverviewComponent = (props) => {
   return (
     <div className='overview-container'>
-        {Transactions.map((transaction) => 
-        <div className='transaction'>
-            <p>{transaction.date}</p>
-            <p>{transaction.store}</p>
-            <p>{transaction.amount} EUR</p>
-        </div>
-        )}
+        {props.transactions.map((transaction) => {
+          let date = new Date(transaction.datum);
+
+          let month = date.getMonth() + 1;
+          let year = date.getFullYear();
+
+          let formattedDate = (month < 10 ? '0' + month : month) + '/' + String(year).slice(-2);
+
+          return (
+            <div className='transaction' key={transaction.id}>
+              <p>{formattedDate}</p>
+              <p>{transaction.mededeling}</p>
+              <p>{transaction.bedrag} EUR</p>
+            </div>
+          )
+        })}
     </div>
   )
 }

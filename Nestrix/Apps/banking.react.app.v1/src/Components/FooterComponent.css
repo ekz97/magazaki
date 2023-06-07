@@ -1,0 +1,12 @@
+.footer-container {
+    background-color: gray;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    justify-content: space-around;
+}
+
+img {
+    height: 4.5em;
+    width: auto;
+}

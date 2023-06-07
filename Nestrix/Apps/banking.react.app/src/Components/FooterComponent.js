@@ -21,7 +21,7 @@ const FooterComponent = () => {
       console.log(to);
       console.log(currency);
       const response = await fetch(
-        "https://localhost:7171/Rekening/transactie",
+        "http://vichogent.be:40076/Rekening/transactie",
         {
           method: "POST",
           headers: {

@@ -74,6 +74,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 		Documentation\vic.txt = Documentation\vic.txt
 	EndProjectSection
 EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "banking.react.app.v1", "Nestrix\Apps\banking.react.app.v1\banking.react.app.v1.esproj", "{747D745F-CA6B-4BB7-8031-12E7858D4480}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -146,6 +148,12 @@ Global
 		{EEA284CA-359E-44B0-8C68-6B2966FB9F8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEA284CA-359E-44B0-8C68-6B2966FB9F8C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EEA284CA-359E-44B0-8C68-6B2966FB9F8C}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{747D745F-CA6B-4BB7-8031-12E7858D4480}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{747D745F-CA6B-4BB7-8031-12E7858D4480}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{747D745F-CA6B-4BB7-8031-12E7858D4480}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{747D745F-CA6B-4BB7-8031-12E7858D4480}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{747D745F-CA6B-4BB7-8031-12E7858D4480}.Release|Any CPU.Build.0 = Release|Any CPU
+		{747D745F-CA6B-4BB7-8031-12E7858D4480}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -171,6 +179,7 @@ Global
 		{1A6A87DA-42E3-4C15-840A-2EC087430CB5} = {D4C0E00D-2BF6-4F0C-8EF7-2D41BE8F0BA7}
 		{16DA3FA3-2EBF-4D00-806E-ED063DAB6D6A} = {7C8473B4-9CAB-452E-BB71-396227876A72}
 		{EEA284CA-359E-44B0-8C68-6B2966FB9F8C} = {D4C0E00D-2BF6-4F0C-8EF7-2D41BE8F0BA7}
+		{747D745F-CA6B-4BB7-8031-12E7858D4480} = {D4C0E00D-2BF6-4F0C-8EF7-2D41BE8F0BA7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4E8DB415-6EBD-4121-A1E5-661B03908463}

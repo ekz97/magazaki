@@ -13,7 +13,7 @@ const Home = () => {
 /*   const fetchData = async () => {
     try {
       const response = await fetch(
-        `https://localhost:7171/Rekening/${rekening1}?depth=10`
+        `http://vichogent.be:40076/Rekening/${rekening1}?depth=10`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -28,7 +28,7 @@ const Home = () => {
   const fetchAccounts = async () => {
     try {
       const response = await fetch(
-        `https://localhost:7171/Rekening/Rekeningen?gebruikerId=${user.id}`
+        `http://vichogent.be:40076/Rekening/Rekeningen?gebruikerId=${user.id}`
       )
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
